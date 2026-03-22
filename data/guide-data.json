@@ -17,7 +17,8 @@
         "type": "sop",
         "keywords": ["拿铁", "咖啡", "latte", "意式咖啡"],
         "category": "饮品",
-        "strength": "中"
+        "strength": "轻",
+        "flavors": ["茶香", "微苦"]
     },
     "美式咖啡": {
         "title": "☕ 美式咖啡制作SOP",
@@ -25,7 +26,8 @@
         "type": "sop",
         "keywords": ["美式", "黑咖啡", "americano"],
         "category": "饮品",
-        "strength": "轻"
+        "strength": "轻",
+        "flavors": ["茶香", "微苦", "清爽"]
     },
     "尼格罗尼": {
         "title": "🍹 尼格罗尼 (Negroni) 制作SOP",
@@ -33,7 +35,8 @@
         "type": "sop",
         "keywords": ["尼格罗尼", "negroni", "苦甜酒", "经典鸡尾酒"],
         "category": "短饮",
-        "strength": "烈"
+        "strength": "烈",
+        "flavors": ["微苦", "酸甜"]
     },
     "金汤力": {
         "title": "🍹 金汤力 (Gin Tonic) 制作SOP",
@@ -41,7 +44,8 @@
         "type": "sop",
         "keywords": ["金汤力", "gin tonic", "杜松子酒", "气泡酒"],
         "category": "长饮",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["清爽", "花香"]
     },
     "莫吉托": {
         "title": "🍹 莫吉托 (Mojito) 制作SOP",
@@ -49,7 +53,8 @@
         "type": "sop",
         "keywords": ["莫吉托", "mojito", "朗姆酒", "薄荷", "清爽鸡尾酒"],
         "category": "长饮",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["清爽", "果香", "酸甜"]
     },
     "干马天尼": {
         "title": "🍹 干马天尼 (Dry Martini) 制作SOP",
@@ -57,7 +62,8 @@
         "type": "sop",
         "keywords": ["干马天尼", "dry martini", "金酒", "经典鸡尾酒"],
         "category": "短饮",
-        "strength": "烈"
+        "strength": "烈",
+        "flavors": ["微苦"]
     },
     "性感沙滩": {
         "title": "🍹 性感沙滩 (Sex On The Beach) 制作SOP",
@@ -65,7 +71,8 @@
         "type": "sop",
         "keywords": ["性感沙滩", "sex on the beach", "伏特加", "果味鸡尾酒"],
         "category": "长饮",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["果香", "酸甜"]
     },
     "教父": {
         "title": "🍹 教父 (GodFather) 制作SOP",
@@ -73,7 +80,8 @@
         "type": "sop",
         "keywords": ["教父", "godfather", "威士忌", "杏仁酒"],
         "category": "短饮",
-        "strength": "烈"
+        "strength": "烈",
+        "flavors": ["微苦", "烟熏"]
     },
     "迈泰": {
         "title": "🍹 迈泰 (Mai Tai) 制作SOP",
@@ -81,7 +89,8 @@
         "type": "sop",
         "keywords": ["迈泰", "mai tai", "朗酒", "君度", "杏仁糖浆", "热带鸡尾酒"],
         "category": "长饮",
-        "strength": "烈"
+        "strength": "烈",
+        "flavors": ["果香", "酸甜"]
     },
     "玛格丽特": {
         "title": "🍹 玛格丽特 (Margarita) 制作SOP",
@@ -89,7 +98,8 @@
         "type": "sop",
         "keywords": ["玛格丽特", "margarita", "龙舌兰", "盐边鸡尾酒"],
         "category": "短饮",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["酸甜", "清爽"]
     },
     "古典鸡尾酒": {
         "title": "🍹 古典鸡尾酒 (Old-fashioned) 制作SOP",
@@ -97,7 +107,8 @@
         "type": "sop",
         "keywords": ["古典鸡尾酒", "old-fashioned", "波本威士忌", "苦精"],
         "category": "短饮",
-        "strength": "烈"
+        "strength": "烈",
+        "flavors": ["微苦", "烟熏"]
     },
     "长岛冰茶": {
         "title": "🍹 长岛冰茶 (Long Island Iced Tea) 制作SOP",
@@ -105,7 +116,8 @@
         "type": "sop",
         "keywords": ["长岛冰茶", "long island iced tea", "鸡尾酒", "多基酒"],
         "category": "长饮",
-        "strength": "烈"
+        "strength": "烈",
+        "flavors": ["酸甜", "清爽"]
     },
     "威士忌酸": {
         "title": "🍹 威士忌酸 (Whiskey Sour) 制作SOP",
@@ -113,7 +125,8 @@
         "type": "sop",
         "keywords": ["威士忌酸", "whiskey sour", "波本威士忌", "酸酒"],
         "category": "短饮",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["酸甜"]
     },
     "龙舌兰日落": {
         "title": "🍹 龙舌兰日落 (Tequila Sunset) 制作SOP",
@@ -121,7 +134,8 @@
         "type": "sop",
         "keywords": ["龙舌兰日落", "tequila sunset", "龙舌兰", "渐变鸡尾酒"],
         "category": "长饮",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["果香", "酸甜"]
     },
     "金菲士": {
         "title": "🍹 金菲士 (Gin Fizz) 制作SOP",
@@ -129,7 +143,8 @@
         "type": "sop",
         "keywords": ["金菲士", "gin fizz", "金酒", "气泡酒"],
         "category": "长饮",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["清爽", "酸甜", "花香"]
     },
     "枯木逢春": {
         "title": "🍹 枯木逢春 制作SOP",
@@ -137,7 +152,8 @@
         "type": "sop",
         "keywords": ["枯木逢春", "龙舌兰", "蜜瓜", "芦荟", "特调"],
         "category": "招牌",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["清爽", "果香"]
     },
     "来日不方长": {
         "title": "🍹 来日不方长 制作SOP",
@@ -145,7 +161,8 @@
         "type": "sop",
         "keywords": ["来日不方长", "金酒", "金巴利", "柠檬茶", "特调"],
         "category": "招牌",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["微苦", "茶香", "酸甜"]
     },
     "断背山": {
         "title": "🍹 断背山 制作SOP",
@@ -153,7 +170,8 @@
         "type": "sop",
         "keywords": ["断背山", "金酒", "蓝橙", "蜜瓜", "芦荟", "特调"],
         "category": "招牌",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["清爽", "果香", "花香"]
     },
     "最好的相遇": {
         "title": "🍹 最好的相遇 制作SOP",
@@ -161,7 +179,8 @@
         "type": "sop",
         "keywords": ["最好的相遇", "冻柠茶", "白酒", "接骨木花", "特调"],
         "category": "招牌",
-        "strength": "轻"
+        "strength": "轻",
+        "flavors": ["茶香", "花香", "酸甜"]
     },
     "热烈": {
         "title": "🍹 热烈 制作SOP",
@@ -169,7 +188,8 @@
         "type": "sop",
         "keywords": ["热烈", "白朗姆", "红石榴", "西柚", "接骨木花", "特调"],
         "category": "招牌",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["果香", "酸甜", "花香"]
     },
     "情人": {
         "title": "🍹 情人 制作SOP",
@@ -177,7 +197,8 @@
         "type": "sop",
         "keywords": ["情人", "茉香龙舌兰", "玫瑰", "干味美思", "特调"],
         "category": "招牌",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["花香", "酸甜"]
     },
     "人间清醒": {
         "title": "🍹 人间清醒 制作SOP",
@@ -185,7 +206,8 @@
         "type": "sop",
         "keywords": ["人间清醒", "开口乐", "伏特加", "酸梅汤", "特调"],
         "category": "招牌",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["酸甜", "微苦", "烟熏"]
     },
     "狗屁爱情": {
         "title": "🍹 狗屁爱情 制作SOP",
@@ -193,7 +215,8 @@
         "type": "sop",
         "keywords": ["狗屁爱情", "金酒", "红豆汤", "蜂蜜", "特调"],
         "category": "招牌",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["酸甜", "微苦"]
     },
     "高球": {
         "title": "🍹 高球 (Highball) 制作SOP",
@@ -201,6 +224,7 @@
         "type": "sop",
         "keywords": ["高球", "highball", "波本威士忌", "苏打水", "鸡尾酒"],
         "category": "长饮",
-        "strength": "中"
+        "strength": "中",
+        "flavors": ["清爽", "微苦"]
     }
 }

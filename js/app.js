@@ -1,5 +1,6 @@
 let guideData = {};
 let currentFilter = 'all';
+let currentFlavor = 'all';
 let debounceTimer;
 
 // 页面加载时获取数据
@@ -49,9 +50,19 @@ function initEventListeners() {
     // 分类筛选点击
     chips.forEach(chip => {
         chip.addEventListener('click', () => {
-            chips.forEach(c => c.classList.remove('active'));
-            chip.classList.add('active');
-            currentFilter = chip.dataset.filter;
+            if (chip.dataset.filter) {
+                // 分类筛选
+                const filterChips = document.querySelectorAll('[data-filter]');
+                filterChips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                currentFilter = chip.dataset.filter;
+            } else if (chip.dataset.flavor) {
+                // 风味筛选
+                const flavorChips = document.querySelectorAll('[data-flavor]');
+                flavorChips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                currentFlavor = chip.dataset.flavor;
+            }
             handleFilter();
         });
     });
@@ -60,7 +71,7 @@ function initEventListeners() {
 // 显示所有项目（卡片列表）
 function showAllItems() {
     const resultSection = document.getElementById('resultSection');
-    let filteredData = filterData(guideData, currentFilter);
+    let filteredData = filterData(guideData, currentFilter, currentFlavor);
 
     if (Object.keys(filteredData).length === 0) {
         resultSection.innerHTML = `
@@ -104,9 +115,9 @@ function showAllItems() {
 // 获取酒精感颜色
 function getStrengthColor(strength) {
     switch (strength) {
-        case '轻': return 'rgba(100, 180, 100, 0.2)';
-        case '中': return 'rgba(201, 168, 76, 0.2)';
-        case '烈': return 'rgba(200, 80, 80, 0.2)';
+        case '轻': return '#10b981'; // 绿色
+        case '中': return '#f59e0b'; // 橙色
+        case '烈': return '#ef4444'; // 红色
         default: return 'transparent';
     }
 }
@@ -133,7 +144,7 @@ function handleSearch() {
         return;
     }
 
-    let filteredData = filterData(guideData, currentFilter);
+    let filteredData = filterData(guideData, currentFilter, currentFlavor);
     let results = {};
 
     for (const [key, item] of Object.entries(filteredData)) {
@@ -189,7 +200,7 @@ function handleSearch() {
 
 // 关键词匹配（旧版保留）
 function matchKeyword(keyword) {
-    let filteredData = filterData(guideData, currentFilter);
+    let filteredData = filterData(guideData, currentFilter, currentFlavor);
 
     // 精确匹配
     if (filteredData[keyword]) {
@@ -215,25 +226,39 @@ function matchKeyword(keyword) {
 }
 
 // 筛选数据
-function filterData(data, filter) {
-    if (filter === 'all') {
-        return data;
-    }
+function filterData(data, filter, flavor) {
+    let result = {};
 
-    const result = {};
-    for (const [key, item] of Object.entries(data)) {
-        if (filter === 'long' && item.category === '长饮') {
-            result[key] = item;
-        } else if (filter === 'short' && item.category === '短饮') {
-            result[key] = item;
-        } else if (filter === 'signature' && item.category === '招牌') {
-            result[key] = item;
-        } else if (filter === 'drink' && item.category === '饮品') {
-            result[key] = item;
-        } else if (filter === 'flow' && item.type === 'flow') {
-            result[key] = item;
+    // 先应用分类筛选
+    if (filter === 'all') {
+        result = { ...data };
+    } else {
+        for (const [key, item] of Object.entries(data)) {
+            if (filter === 'long' && item.category === '长饮') {
+                result[key] = item;
+            } else if (filter === 'short' && item.category === '短饮') {
+                result[key] = item;
+            } else if (filter === 'signature' && item.category === '招牌') {
+                result[key] = item;
+            } else if (filter === 'drink' && item.category === '饮品') {
+                result[key] = item;
+            } else if (filter === 'flow' && item.type === 'flow') {
+                result[key] = item;
+            }
         }
     }
+
+    // 再应用风味筛选
+    if (flavor !== 'all') {
+        const flavorResult = {};
+        for (const [key, item] of Object.entries(result)) {
+            if (item.flavors && item.flavors.some(f => f === flavor)) {
+                flavorResult[key] = item;
+            }
+        }
+        return flavorResult;
+    }
+
     return result;
 }
 

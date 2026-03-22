@@ -35,11 +35,12 @@ header h1 {
 
 .filter-chips {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     overflow-x: auto;
-    padding-bottom: 8px;
+    padding-bottom: 6px;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    margin-bottom: 8px;
 }
 
 .filter-chips::-webkit-scrollbar {
@@ -47,11 +48,11 @@ header h1 {
 }
 
 .chip {
-    padding: 6px 12px;
+    padding: 6px 14px;
     background-color: #e2e8f0;
     color: #64748b;
     border-radius: 20px;
-    font-size: 14px;
+    font-size: 13px;
     white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -210,11 +211,17 @@ header h1 {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.card:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .card-header {
