@@ -208,5 +208,68 @@
         "category": "长饮",
         "strength": "中",
         "flavors": ["清爽", "微苦"]
+    },
+    "咸狗": {
+        "title": "🍹 咸狗 (Salt Dog) 制作SOP",
+        "content": "<h3>配方</h3><p>伏特加30ml，西柚汁50ml，碎冰适量，西柚片1片（装饰用），海盐适量（杯口用）</p><h3>步骤</h3><ol><li>杯口处理：将杯口沾上水或西柚汁，再蘸取适量海盐，形成盐边</li><li>混合原料：杯中加入碎冰，依次倒入30ml伏特加和50ml西柚汁</li><li>装饰完成：用西柚片挂杯装饰即可</li></ol><p>🎥 <a href=\"http://xhslink.com/o/AMl64nKmnA9\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["咸狗", "salt dog", "伏特加", "西柚汁", "盐边鸡尾酒"],
+        "category": "长饮",
+        "strength": "中",
+        "flavors": ["清爽", "果香"]
+    },
+    "恋爱脑": {
+        "title": "🍹 恋爱脑 (Smitten) 制作SOP",
+        "content": "<h3>配方</h3><p>龙舌兰15ml，君度15ml，金酒15ml，伏特加15ml，白朗姆15ml，柠檬汁15ml，红石榴糖浆10ml，苏打水50ml，冰块适量</p><h3>步骤</h3><ol><li>雪克杯依次加入龙舌兰15ml、君度15ml、金酒15ml、伏特加15ml、白朗姆15ml、柠檬汁15ml</li><li>加入冰块，shake 15秒</li><li>杯中装满冰块，先倒入红石榴糖浆10ml</li><li>将雪克杯中的酒液滤入杯中</li><li>苏打水补满</li></ol><p>🎥 <a href=\"http://xhslink.com/o/En2m9vL9I6\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["恋爱脑", "smitten", "龙舌兰", "君度", "金酒", "伏特加", "白朗姆", "特调"],
+        "category": "招牌",
+        "strength": "烈",
+        "flavors": ["果香", "酸甜"]
+    },
+    "螺丝起子": {
+        "title": "🍹 螺丝起子 (Screwdriver) 制作SOP",
+        "content": "<h3>配方</h3><p>伏特加45ml，橙汁补满，冰块满杯，橙子片1片（装饰用）</p><h3>步骤</h3><ol><li>300ml左右杯中放满冰</li><li>倒入45ml伏特加</li><li>橙汁补满</li><li>橙子片装饰，如果没有，柠檬片装饰</li></ol>",
+        "type": "sop",
+        "keywords": ["螺丝起子", "screwdriver", "伏特加", "橙汁", "鸡尾酒"],
+        "category": "长饮",
+        "strength": "中",
+        "flavors": ["清爽", "果香"]
+    },
+    "僵尸": {
+        "title": "🍹 僵尸 (Zombie) 制作SOP",
+        "content": "<h3>配方</h3><p>白朗姆30ml，黑朗姆30ml，陈年(金)朗姆20ml，君度15ml，青柠汁30ml，菠萝汁60ml，百香果糖浆20ml，红石榴糖浆5ml，肉桂粉少许（可选）</p><h3>步骤</h3><ol><li>杯中加满冰块</li><li>依次加入白朗姆30ml、黑朗姆30ml、陈年(金)朗姆20ml</li><li>加入君度15ml、青柠汁30ml、百香果糖浆20ml</li><li>倒入红石榴糖浆5ml、菠萝汁60ml</li><li>搅拌均匀后，表面撒少许肉桂粉（可选）</li><li>用菠萝片和绿叶装饰</li></ol><p>🎥 <a href=\"http://xhslink.com/o/4S3ffxFb5vD\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["僵尸", "zombie", "朗姆酒", "菠萝", "百香果", "tiki鸡尾酒"],
+        "category": "招牌",
+        "strength": "烈",
+        "flavors": ["果香", "酸甜"]
+    },
+    "橙子蛋糕": {
+        "title": "🍹 橙子蛋糕 (Climax) 制作SOP",
+        "content": "<h3>配方</h3><p>君度30ml，百利甜10ml，橙汁100ml，冰块适量</p><h3>步骤</h3><ol><li>混合摇匀：shake杯中加入30ml君度、10ml百利甜、100ml橙汁，加冰后充分摇晃混合</li><li>装杯装饰：杯中加入半杯冰，倒入混合酒液，完成装饰即可</li></ol><p>🎥 <a href=\"http://xhslink.com/o/8gk2bkHaFui\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["橙子蛋糕", "climax", "君度", "百利甜", "橙汁", "特调"],
+        "category": "招牌",
+        "strength": "轻",
+        "flavors": ["果香", "酸甜"]
+    },
+    "床笫之间": {
+        "title": "🍹 床笫之间 (Between The Sheets) 制作SOP",
+        "content": "<h3>配方</h3><p>白兰地25ml，白朗姆25ml，君度25ml，柠檬汁20ml</p><h3>步骤</h3><ol><li>准备工具：摇酒壶、strainer（滤冰器）、鸡尾酒杯</li><li>预冷杯子：将鸡尾酒杯冰镇备用</li><li>混合原料：摇酒壶中加入所有液体原料和冰块</li><li>摇匀降温：大力摇晃摇酒壶至外部结霜（约10-15秒）</li><li>过滤装杯：通过滤冰器将酒液倒入预冷的鸡尾酒杯</li><li>装饰增香：挤入柠檬皮汁增香，柠檬皮可放入杯中作为装饰</li></ol><p>🎥 <a href=\"http://xhslink.com/o/8KunmtEcwQx\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["床笫之间", "between the sheets", "白兰地", "白朗姆", "君度", "鸡尾酒"],
+        "category": "短饮",
+        "strength": "中",
+        "flavors": ["果香", "酸甜"]
+    },
+    "纽约酸": {
+        "title": "🍹 纽约酸 (New York Sour) 制作SOP",
+        "content": "<h3>配方</h3><p>波本威士忌50ml，单糖浆25ml，鲜榨柠檬汁25ml，红葡萄酒适量（用于表面漂浮），冰块适量</p><h3>步骤</h3><ol><li>调制基础酒液：将50ml波本威士忌、25ml单糖浆、25ml鲜榨柠檬汁倒入摇酒壶中，充分摇匀</li><li>装杯：将摇匀的酒液倒入事先装有冰块的老式杯中</li><li>表面处理：在酒液表面漂浮适量红葡萄酒，完成制作</li></ol><p>🎥 <a href=\"http://xhslink.com/o/Av37xkHbjud\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["纽约酸", "new york sour", "波本威士忌", "红葡萄酒", "酸酒"],
+        "category": "短饮",
+        "strength": "中",
+        "flavors": ["烟熏", "酸甜"]
     }
 }
