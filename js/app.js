@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadGuideData();
     initEventListeners();
     showAllItems();
+    initNavAndChecklist();
 });
 
 // 加载指引数据
@@ -248,10 +249,18 @@ function filterData(data, filter, flavor) {
         }
     }
 
+    // 过滤掉checklist类型，只在checklist页面显示
+    const filteredResult = {};
+    for (const [key, item] of Object.entries(result)) {
+        if (item.type !== 'checklist') {
+            filteredResult[key] = item;
+        }
+    }
+
     // 再应用风味筛选
     if (flavor !== 'all') {
         const flavorResult = {};
-        for (const [key, item] of Object.entries(result)) {
+        for (const [key, item] of Object.entries(filteredResult)) {
             if (item.flavors && item.flavors.some(f => f === flavor)) {
                 flavorResult[key] = item;
             }
@@ -259,7 +268,7 @@ function filterData(data, filter, flavor) {
         return flavorResult;
     }
 
-    return result;
+    return filteredResult;
 }
 
 // 显示详情
@@ -295,3 +304,165 @@ function showResult(result) {
         `;
     }
 }
+
+// ==================== Checklist功能 ====================
+let currentChecklistType = 'open';
+let checklistData = {
+    open: [],
+    close: []
+};
+
+// 初始化导航和checklist事件监听
+function initNavAndChecklist() {
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const checklistTabs = document.querySelectorAll('.checklist-tab');
+    const resetBtn = document.getElementById('reset-btn');
+
+    // 主导航标签切换
+    navTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            navTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            const tabName = tab.dataset.tab;
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+
+            if (tabName === 'checklist') {
+                renderChecklist();
+            }
+        });
+    });
+
+    // Checklist标签切换
+    checklistTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            checklistTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentChecklistType = tab.dataset.checklist;
+            renderChecklist();
+        });
+    });
+
+    // 重置按钮
+    resetBtn.addEventListener('click', () => {
+        if (confirm('确定要重置当前清单吗？所有勾选状态将被清除。')) {
+            resetChecklist();
+        }
+    });
+
+    // 初始化checklist数据
+    loadChecklistData();
+}
+
+// 加载checklist数据
+function loadChecklistData() {
+    const today = new Date().toDateString();
+    const savedDate = localStorage.getItem('checklistDate');
+
+    // 如果是新的一天，重置checklist
+    if (savedDate !== today) {
+        localStorage.setItem('checklistDate', today);
+        checklistData = {
+            open: guideData['checklist-open'].items.map(item => ({ text: item, done: false })),
+            close: guideData['checklist-close'].items.map(item => ({ text: item, done: false }))
+        };
+        saveChecklistData();
+    } else {
+        // 从localStorage加载数据
+        const savedOpen = localStorage.getItem('checklistOpen');
+        const savedClose = localStorage.getItem('checklistClose');
+
+        if (savedOpen && savedClose) {
+            checklistData.open = JSON.parse(savedOpen);
+            checklistData.close = JSON.parse(savedClose);
+        } else {
+            // 如果localStorage没有数据，从guideData初始化
+            checklistData = {
+                open: guideData['checklist-open'].items.map(item => ({ text: item, done: false })),
+                close: guideData['checklist-close'].items.map(item => ({ text: item, done: false }))
+            };
+            saveChecklistData();
+        }
+    }
+}
+
+// 保存checklist数据到localStorage
+function saveChecklistData() {
+    localStorage.setItem('checklistOpen', JSON.stringify(checklistData.open));
+    localStorage.setItem('checklistClose', JSON.stringify(checklistData.close));
+}
+
+// 重置当前checklist
+function resetChecklist() {
+    const items = currentChecklistType === 'open'
+        ? guideData['checklist-open'].items
+        : guideData['checklist-close'].items;
+
+    checklistData[currentChecklistType] = items.map(item => ({ text: item, done: false }));
+    saveChecklistData();
+    renderChecklist();
+}
+
+// 渲染checklist
+function renderChecklist() {
+    const items = checklistData[currentChecklistType];
+    const title = currentChecklistType === 'open' ? '开工清单' : '打烊清单';
+    const today = new Date().toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long'
+    });
+
+    document.getElementById('checklist-title').textContent = title;
+    document.getElementById('checklist-date').textContent = `📅 ${today}`;
+
+    const doneCount = items.filter(item => item.done).length;
+    const totalCount = items.length;
+    const progressPercent = totalCount > 0 ? (doneCount / totalCount * 100) : 0;
+
+    document.getElementById('progress-text').textContent = `${doneCount}/${totalCount} 已完成`;
+    document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+
+    const checklistItemsEl = document.getElementById('checklist-items');
+
+    // 检查是否全部完成
+    if (doneCount === totalCount && totalCount > 0) {
+        checklistItemsEl.innerHTML = `
+            <div class="completion-celebration">
+                <h3>🎉 全部完成！</h3>
+                <p>${currentChecklistType === 'open' ? '开工准备就绪' : '打烊工作完成'}</p>
+            </div>
+        ` + renderChecklistItems(items);
+    } else {
+        checklistItemsEl.innerHTML = renderChecklistItems(items);
+    }
+
+    // 绑定点击事件
+    document.querySelectorAll('.checklist-item').forEach((item, index) => {
+        item.addEventListener('click', () => {
+            toggleChecklistItem(index);
+        });
+    });
+}
+
+// 渲染checklist项目
+function renderChecklistItems(items) {
+    return items.map((item, index) => `
+        <li class="checklist-item ${item.done ? 'completed' : ''}" data-index="${index}">
+            <div class="checklist-checkbox"></div>
+            <span class="checklist-item-text">${item.text}</span>
+        </li>
+    `).join('');
+}
+
+// 切换checklist项目状态
+function toggleChecklistItem(index) {
+    checklistData[currentChecklistType][index].done = !checklistData[currentChecklistType][index].done;
+    saveChecklistData();
+    renderChecklist();
+}
+
