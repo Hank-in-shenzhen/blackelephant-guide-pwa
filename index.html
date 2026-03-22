@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作指引督导</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 工作指引</h1>
+        </header>
+
+        <div class="filter-section">
+            <div class="filter-chips">
+                <span class="chip active" data-filter="all">全部</span>
+                <span class="chip" data-filter="long">长饮</span>
+                <span class="chip" data-filter="short">短饮</span>
+                <span class="chip" data-filter="signature">招牌</span>
+                <span class="chip" data-filter="drink">饮品</span>
+                <span class="chip" data-filter="flow">流程</span>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <input type="text" id="searchInput" placeholder="输入关键词，如：上班了、下班了、拿铁咖啡" autocomplete="off">
+            <button id="searchBtn">查询</button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="welcome">
+                <p>欢迎使用工作指引系统，请输入关键词查询相关流程或SOP</p>
+                <div class="tips">
+                    <p>💡 示例查询：</p>
+                    <ul>
+                        <li>上班了 → 查看上班流程</li>
+                        <li>下班了 → 查看下班流程</li>
+                        <li>拿铁咖啡 → 查看制作SOP</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Service Worker 注册
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker 注册成功:', registration);
+
+                        // 监听更新
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    if (confirm('发现新版本，是否刷新页面更新？')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(registrationError => {
+                        console.log('ServiceWorker 注册失败:', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

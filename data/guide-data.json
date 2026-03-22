@@ -1,0 +1,206 @@
+{
+    "上班了": {
+        "title": "✅ 上班流程指引",
+        "content": "<ol><li>打卡签到（企业微信/指纹打卡）</li><li>查看今日工作任务看板</li><li>参加10分钟早会，同步昨日进度和今日计划</li><li>检查工作设备和物料准备情况</li><li>正式开始工作</li></ol>",
+        "type": "flow",
+        "keywords": ["上班", "签到", "早会", "开工"]
+    },
+    "下班了": {
+        "title": "✅ 下班流程指引",
+        "content": "<ol><li>提交今日工作汇报到工作群</li><li>整理工作桌面，归类存放物料</li><li>关闭电脑、打印机等设备电源</li><li>检查门窗、水电是否关闭</li><li>打卡签退</li></ol>",
+        "type": "flow",
+        "keywords": ["下班", "签退", "汇报", "收工"]
+    },
+    "拿铁咖啡": {
+        "title": "☕ 拿铁咖啡制作SOP",
+        "content": "<h3>材料准备</h3><p>浓缩咖啡30ml，冷藏全脂牛奶200ml，香草糖浆10ml（可选）</p><h3>制作步骤</h3><ol><li>预热咖啡机，萃取30ml浓缩咖啡到杯中</li><li>牛奶倒入拉花缸，打发至温度60-65℃，奶泡厚度约1cm</li><li>将奶缸抬高，把牛奶注入咖啡液面下，融合至7分满</li><li>降低奶缸，晃动拉花缸完成拉花</li><li>擦拭杯口，出品</li></ol><p>🎥 <a href=\"https://www.bilibili.com/video/BV1xx411c7mZ\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["拿铁", "咖啡", "latte", "意式咖啡"],
+        "category": "饮品",
+        "strength": "中"
+    },
+    "美式咖啡": {
+        "title": "☕ 美式咖啡制作SOP",
+        "content": "<h3>材料准备</h3><p>浓缩咖啡30ml，热水150ml</p><h3>制作步骤</h3><ol><li>萃取30ml浓缩咖啡到杯中</li><li>加入150ml 85℃热水，搅拌均匀即可</li><li>可根据个人口味加入冰块制作冰美式</li></ol><p>🎥 <a href=\"https://www.bilibili.com/video/BV1Z4411x7zL\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["美式", "黑咖啡", "americano"],
+        "category": "饮品",
+        "strength": "轻"
+    },
+    "尼格罗尼": {
+        "title": "🍹 尼格罗尼 (Negroni) 制作SOP",
+        "content": "<h3>配方</h3><p>金酒40ml，金巴利30ml，红味美思30ml，冰块足量，新鲜陈皮2片</p><h3>步骤</h3><ol><li>加冰入杯：向rocks杯中加入足量普通冰块(非方冰)</li><li>依次注酒：按顺序加入40ml金酒、30ml金巴利、30ml红味美思</li><li>搅拌混合：用吧勺轻柔搅拌10-15秒，使酒体充分融合</li><li>装饰完成：取2片新鲜陈皮，挤净皮油至杯中，将陈皮片投入酒中作为装饰</li></ol><p>🎥 <a href=\"http://xhslink.com/o/dzHioWziDU\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["尼格罗尼", "negroni", "苦甜酒", "经典鸡尾酒"],
+        "category": "短饮",
+        "strength": "烈"
+    },
+    "金汤力": {
+        "title": "🍹 金汤力 (Gin Tonic) 制作SOP",
+        "content": "<h3>配方</h3><p>金酒45ml，汤力水适量，青柠1颗，冰块足量</p><h3>步骤</h3><ol><li>冰杯准备：将空杯预先冰镇</li><li>添加冰块：向冰杯中加入足量冰块</li><li>青柠处理：青柠皮朝下，向杯中挤入青柠汁，将挤汁后的青柠复原形状，丢入杯中</li><li>倒入金酒：加入45ml金酒</li><li>注入汤力水：缓慢倒入汤力水</li><li>提拉混合：做缓慢的提拉动作完成混合</li></ol><p>🎥 <a href=\"http://xhslink.com/o/7n8ExiYLjhV\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["金汤力", "gin tonic", "杜松子酒", "气泡酒"],
+        "category": "长饮",
+        "strength": "中"
+    },
+    "莫吉托": {
+        "title": "🍹 莫吉托 (Mojito) 制作SOP",
+        "content": "<h3>配方</h3><p>朗姆酒60ml，薄荷叶适量（多量），青柠1整只，蔗糖糖浆4-5勺，碎冰足量</p><h3>步骤</h3><ol><li>基底处理：杯中放入薄荷叶和青柠汁，轻轻按压（避免压破薄荷叶茎）</li><li>混合原料：加入碎冰、朗姆酒和蔗糖糖浆，充分调和至糖浆完全融化</li><li>二次加冰：补充碎冰至杯口</li><li>装饰完成：顶部放置薄荷叶轻拍（震破薄膜释放香气），插入吸管</li></ol><p>🎥 <a href=\"http://xhslink.com/o/460mT6Fjepf\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["莫吉托", "mojito", "朗姆酒", "薄荷", "清爽鸡尾酒"],
+        "category": "长饮",
+        "strength": "中"
+    },
+    "干马天尼": {
+        "title": "🍹 干马天尼 (Dry Martini) 制作SOP",
+        "content": "<h3>配方</h3><p>干金酒8份，干味美思2份，橙味苦精2-3滴，橄榄（必备）、柠檬皮（增香）</p><h3>步骤</h3><ol><li>准备工具：Mixing Glass（调酒杯）、吧勺、滤冰器、Martini杯（预冰至-10℃左右）</li><li>调酒杯加冰：填满冰块（确保保温效果）</li><li>添加材料：依次加入橙味苦精（2-3滴）、干味美思（2份）、干金酒（8份）</li><li>调和（Stir）：手腕发力搅拌至有明显阻力感（凭经验判断温度达标）</li><li>滤入冰杯：快速过滤酒液至预冰Martini杯，避免混入空气</li><li>装饰完成：放入橄榄，柠檬皮擦杯口增香（可选将柠檬皮放入酒中）</li></ol><p>🎥 <a href=\"http://xhslink.com/o/1nu84odfKGy\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["干马天尼", "dry martini", "金酒", "经典鸡尾酒"],
+        "category": "短饮",
+        "strength": "烈"
+    },
+    "性感沙滩": {
+        "title": "🍹 性感沙滩 (Sex On The Beach) 制作SOP",
+        "content": "<h3>配方</h3><p>伏特加50ml，桃子利口酒10ml+，香博利口酒10ml+，橙汁约40ml，蔓越莓汁约40ml</p><h3>步骤</h3><ol><li>准备材料：将所有液体材料按配方量准备</li><li>摇匀混合：将所有材料倒入摇酒壶中摇匀</li><li>冰镇杯子：提前冰杯</li><li>过滤倒出：将摇匀的酒液过滤倒入冰镇杯中</li><li>装饰完成：添加橙片等装饰</li></ol><p>🎥 <a href=\"http://xhslink.com/o/95JLfDJxZJJ\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["性感沙滩", "sex on the beach", "伏特加", "果味鸡尾酒"],
+        "category": "长饮",
+        "strength": "中"
+    },
+    "教父": {
+        "title": "🍹 教父 (GodFather) 制作SOP",
+        "content": "<h3>配方</h3><p>调配型威士忌（黑方）40ml，杏仁利口酒（帝萨诺）25ml，冰块适量</p><h3>步骤</h3><ol><li>冰杯准备：在杯中加入冰块，预冷杯子</li><li>原料添加：依次倒入40ml威士忌和25ml杏仁利口酒</li><li>混合降温：轻微搅动冰块，使酒体充分混合并降温</li><li>完成出品：保持杯中冰块，直接饮用</li></ol><p>🎥 <a href=\"http://xhslink.com/o/4823OszKtC7\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["教父", "godfather", "威士忌", "杏仁酒"],
+        "category": "短饮",
+        "strength": "烈"
+    },
+    "迈泰": {
+        "title": "🍹 迈泰 (Mai Tai) 制作SOP",
+        "content": "<h3>配方</h3><p>朗酒60ml，君度橙酒20ml，杏仁糖浆20ml，青柠汁25ml</p><h3>步骤</h3><ol><li>准备阶段：取大容量杯（谢可乐牙杯）进行预冰处理</li><li>混合原料：将朗酒、君度橙酒、杏仁糖浆、青柠汁倒入摇酒壶，快速摇匀（无需过度降温）</li><li>装杯处理：杯中加入碎冰，滤入摇匀的酒液，表面补加碎冰至满杯</li><li>装饰完成：用柠檬片、金银片各一片及樱桃进行杯口装饰</li></ol><p>🎥 <a href=\"http://xhslink.com/o/AdKAIYoM8rJ\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["迈泰", "mai tai", "朗酒", "君度", "杏仁糖浆", "热带鸡尾酒"],
+        "category": "长饮",
+        "strength": "烈"
+    },
+    "玛格丽特": {
+        "title": "🍹 玛格丽特 (Margarita) 制作SOP",
+        "content": "<h3>配方</h3><p>龙舌兰酒45ml，君度橙酒1份，青柠汁1份，盐适量，冰块适量</p><h3>步骤</h3><ol><li>杯口处理：用青柠片轻擦杯口边缘，杯口蘸取盐（覆盖约一半杯口），敲掉多余盐分</li><li>冰杯准备：杯中放入冰块预冷，使用前倒掉</li><li>调制酒液：按2:1:1比例混合龙舌兰、君度橙酒、青柠汁，加入冰块摇匀</li><li>成品组装：将预冷的杯子中的冰块倒掉，过滤摇好的酒液倒入杯中即可</li></ol><p>🎥 <a href=\"http://xhslink.com/o/8NMmAkzaClg\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["玛格丽特", "margarita", "龙舌兰", "盐边鸡尾酒"],
+        "category": "短饮",
+        "strength": "中"
+    },
+    "古典鸡尾酒": {
+        "title": "🍹 古典鸡尾酒 (Old-fashioned) 制作SOP",
+        "content": "<h3>配方</h3><p>波本威士忌，安高天娜苦精，方糖，陈皮，苏打水，古典杯，冰块8-9块</p><h3>步骤</h3><ol><li>基底制备：在古典杯中放入方糖，滴入Angostura Bitters苦精</li><li>增香处理：加入陈皮，碾压方糖的同时挤压陈皮释放陈皮油（内在香味）</li><li>糖分稀释：倒入少量苏打水，搅拌至方糖完全溶解</li><li>降温稀释：加入8-9块冰块，倒入Bourbon Whiskey，匀速搅拌至温度降低</li><li>表层增香：再次挤压新鲜陈皮，使陈皮油滴入酒液表面（外在香味）</li></ol><p>🎥 <a href=\"http://xhslink.com/o/7t5hTAblFuu\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["古典鸡尾酒", "old-fashioned", "波本威士忌", "苦精"],
+        "category": "短饮",
+        "strength": "烈"
+    },
+    "长岛冰茶": {
+        "title": "🍹 长岛冰茶 (Long Island Iced Tea) 制作SOP",
+        "content": "<h3>配方</h3><p>朗姆酒20ml，伏特加20ml，金酒20ml，龙舌兰20ml，君度橙酒15ml，柠檬汁20ml，白糖少许，可乐适量</p><h3>步骤</h3><ol><li>冰杯准备：将杯子预先冰镇</li><li>添加碎冰：在杯中装入碎冰</li><li>混合原料：依次倒入朗姆酒、伏特加、金酒、龙舌兰、君度橙酒、柠檬汁和少许白糖</li><li>关键步骤：加入适量可乐调色并轻轻搅拌</li><li>装饰完成：(可选)用柠檬片装饰</li></ol><p>🎥 <a href=\"http://xhslink.com/o/14J8Yce9RGd\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["长岛冰茶", "long island iced tea", "鸡尾酒", "多基酒"],
+        "category": "长饮",
+        "strength": "烈"
+    },
+    "威士忌酸": {
+        "title": "🍹 威士忌酸 (Whiskey Sour) 制作SOP",
+        "content": "<h3>配方</h3><p>波本威士忌50ml，柠檬汁1份，单糖浆1份（1:1糖:水）</p><h3>步骤</h3><ol><li>备料：按2:1:1黄金比例准备威士忌、柠檬汁、单糖浆</li><li>混合：将所有液体原料加入摇酒壶</li><li>加冰：摇酒壶中加入适量冰块（\"不要放太多\"）</li><li>摇匀：快速大力摇晃，行程要大（目的是\"让它稍微有一点点的发泡\"）</li><li>预冷杯：另取杯子加入冰块预冷</li><li>过滤：两秒钟内快速将混合液滤入预冷杯中</li></ol><p>🎥 <a href=\"http://xhslink.com/o/8l0G2ski8Ic\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["威士忌酸", "whiskey sour", "波本威士忌", "酸酒"],
+        "category": "短饮",
+        "strength": "中"
+    },
+    "龙舌兰日落": {
+        "title": "🍹 龙舌兰日落 (Tequila Sunset) 制作SOP",
+        "content": "<h3>配方</h3><p>龙舌兰/伏特加45ml，橙汁补满，红石榴糖浆10ml，冰块满杯</p><h3>步骤</h3><ol><li>杯中加入满杯冰块</li><li>倒入45ml龙舌兰/伏特加</li><li>用橙汁补满杯子</li><li>轻轻搅拌混合均匀</li><li>顺着吧勺缓慢倒入10ml红石榴糖浆</li></ol><p>🎥 <a href=\"http://xhslink.com/o/AagLfndsJGL\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["龙舌兰日落", "tequila sunset", "龙舌兰", "渐变鸡尾酒"],
+        "category": "长饮",
+        "strength": "中"
+    },
+    "金菲士": {
+        "title": "🍹 金菲士 (Gin Fizz) 制作SOP",
+        "content": "<h3>配方</h3><p>金酒45ml，柠檬汁20ml，糖浆10ml，苏打水适量</p><h3>步骤</h3><ol><li>冰杯处理：取克林杯加入摇冰，或放入冷冻柜冰镇；过滤融化水分后静置备用</li><li>基酒添加：倒入45ml金酒（可根据杯型调整比例）</li><li>酸甜平衡：依次加入20ml柠檬汁、10ml糖浆，搅拌后尝味调整</li><li>混合降温：加入冰杯中的冰水，再次搅拌混合</li><li>注入苏打水：沿冰块与杯壁缝隙倒入苏打水至九分满（避免直接冲在冰块上）</li><li>提拉融合：用吧勺提拉冰块使上下液体混合，让气泡自然上涌（不需搅拌）</li></ol><p>🎥 <a href=\"http://xhslink.com/o/84DX3fLiPGI\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["金菲士", "gin fizz", "金酒", "气泡酒"],
+        "category": "长饮",
+        "strength": "中"
+    },
+    "枯木逢春": {
+        "title": "🍹 枯木逢春 制作SOP",
+        "content": "<h3>配方</h3><p>龙舌兰50ml，蜜瓜利口酒25ml，芦荟汁70ml，柠檬半颗，气泡水3/1杯</p><h3>步骤</h3><ol><li>准备阶段：雪克壶中放入5-6颗冰块</li><li>混合基底：依次加入龙舌兰50ml、蜜瓜利口25ml、芦荟汁70ml，挤入半颗柠檬汁</li><li>摇匀酒液：雪克壶盖盖，Shake 10秒</li><li>装杯处理：杯中加满冰块，倒入摇匀的酒液</li><li>调和风味：加入气泡水至3/1杯满（偏好甜口可替换为雪碧）</li></ol><p>🎥 <a href=\"http://xhslink.com/o/1p2rOMebKzA\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["枯木逢春", "龙舌兰", "蜜瓜", "芦荟", "特调"],
+        "category": "招牌",
+        "strength": "中"
+    },
+    "来日不方长": {
+        "title": "🍹 来日不方长 制作SOP",
+        "content": "<h3>配方</h3><p>金酒35ml，金巴利15ml，果子熟了多多柠檬茶（鸭屎香风味）120ml，柠檬半颗</p><h3>步骤</h3><ol><li>准备阶段：取摇酒壶，加入适量冰块</li><li>基酒混合：依次倒入15ml金巴利、35ml金酒</li><li>调味添加：挤入半颗柠檬汁，倒入120ml多多柠檬茶</li><li>摇匀冷却：盖紧摇酒壶，快速Shake至壶身结霜</li><li>装杯装饰：将混合酒液倒入装满冰块的玻璃杯中，用柠檬片装饰</li></ol>",
+        "type": "sop",
+        "keywords": ["来日不方长", "金酒", "金巴利", "柠檬茶", "特调"],
+        "category": "招牌",
+        "strength": "中"
+    },
+    "断背山": {
+        "title": "🍹 断背山 制作SOP",
+        "content": "<h3>配方</h3><p>金酒50ml，蓝橙利口酒15ml，蜜瓜利口酒15ml，芦荟汁65ml，柠檬半颗</p><h3>步骤</h3><ol><li>雪克杯中加入冰块</li><li>依次倒入50ml金酒、15ml蓝橙利口酒、15ml蜜瓜利口酒</li><li>加入65ml芦荟汁和半颗柠檬汁</li><li>充分Shake（摇晃）混合</li><li>将酒液倒入装有冰块的杯中</li><li>用薄荷叶装饰完成</li></ol><p>🎥 <a href=\"http://xhslink.com/o/NW7uxI9J2T\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["断背山", "金酒", "蓝橙", "蜜瓜", "芦荟", "特调"],
+        "category": "招牌",
+        "strength": "中"
+    },
+    "最好的相遇": {
+        "title": "🍹 最好的相遇 制作SOP",
+        "content": "<h3>配方</h3><p>冻柠茶90ml，白酒25ml，接骨木花糖浆10ml，柠檬半颗</p><h3>步骤</h3><ol><li>将90ml冻柠茶、25ml白酒、10ml接骨木花糖浆、半颗柠檬汁依次倒入摇酒壶</li><li>加入冰块</li><li>充分Shake摇匀</li><li>将混合酒液倒入装有冰块的杯中</li><li>用柠檬片装饰完成</li></ol><p>🎥 <a href=\"http://xhslink.com/o/6ZCwpG1MvdP\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["最好的相遇", "冻柠茶", "白酒", "接骨木花", "特调"],
+        "category": "招牌",
+        "strength": "轻"
+    },
+    "热烈": {
+        "title": "🍹 热烈 制作SOP",
+        "content": "<h3>配方</h3><p>白朗姆65ml，红石榴糖浆15ml，接骨木花糖浆15ml，西柚汁90ml，柠檬半颗，薄荷装饰</p><h3>步骤</h3><ol><li>将65ml白朗姆、15ml接骨木花糖浆、90ml西柚汁、半颗柠檬汁倒入摇酒壶</li><li>Shake 20秒</li><li>杯中加入冰块，倒入摇好的酒液</li><li>加入15ml红石榴糖浆</li><li>用薄荷装饰完成</li></ol><p>🎥 <a href=\"http://xhslink.com/o/3mqHjcHpxj6\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["热烈", "白朗姆", "红石榴", "西柚", "接骨木花", "特调"],
+        "category": "招牌",
+        "strength": "中"
+    },
+    "情人": {
+        "title": "🍹 情人 制作SOP",
+        "content": "<h3>配方</h3><p>茉香龙舌兰45ml，玫瑰糖浆20ml，柠檬汁半颗，干味美思15ml</p><h3>步骤</h3><ol><li>壶中加入冰块</li><li>依次倒入45ml茉香龙舌兰、15ml干味美思、20ml玫瑰糖浆、半颗柠檬汁</li><li>Shake（摇晃混合）</li><li>倒入装有冰块的杯中</li><li>用花朵装饰</li></ol><p>🎥 <a href=\"http://xhslink.com/o/3Vwd37DZJIa\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["情人", "茉香龙舌兰", "玫瑰", "干味美思", "特调"],
+        "category": "招牌",
+        "strength": "中"
+    },
+    "人间清醒": {
+        "title": "🍹 人间清醒 制作SOP",
+        "content": "<h3>配方</h3><p>开口乐利口酒40ml，伏特加25ml，青柠半颗，酸梅汤50ml，薄荷装饰</p><h3>步骤</h3><ol><li>准备材料：将所有液体原料、青柠、冰块备好</li><li>混合原料：依次将伏特加25ml、酸梅汤50ml、开口乐利口酒40ml倒入摇酒壶，挤入半颗青柠汁</li><li>摇匀冷却：加入冰块，Shake（摇晃）至充分混合冷却</li><li>装杯装饰：将酒液倒入装满冰块的杯中，用薄荷和青柠片装饰</li></ol><p>🎥 <a href=\"http://xhslink.com/o/8nvkOwCQT5K\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["人间清醒", "开口乐", "伏特加", "酸梅汤", "特调"],
+        "category": "招牌",
+        "strength": "中"
+    },
+    "狗屁爱情": {
+        "title": "🍹 狗屁爱情 制作SOP",
+        "content": "<h3>配方</h3><p>金酒45ml，红豆汤60ml，柠檬汁10ml，蜂蜜10ml，柠檬片装饰</p><h3>步骤</h3><ol><li>准备阶段：取调酒壶，加入适量冰块</li><li>依次添加：45ml金酒 → 60ml红豆汤 → 10ml蜂蜜 → 10ml柠檬汁</li><li>混合搅拌：充分搅拌至材料融合</li><li>装杯完成：将混合液倒入装有冰块的酒杯，用柠檬片装饰</li></ol><p>🎥 <a href=\"http://xhslink.com/o/A0D2ZrKtPs8\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["狗屁爱情", "金酒", "红豆汤", "蜂蜜", "特调"],
+        "category": "招牌",
+        "strength": "中"
+    },
+    "高球": {
+        "title": "🍹 高球 (Highball) 制作SOP",
+        "content": "<h3>配方</h3><p>波本威士忌45ml，大象苏打水八分满，柠檬皮适量（装饰）</p><h3>步骤</h3><ol><li>冰杯准备：预先冰制冷饮杯，确保杯壁温度足够低</li><li>倒入基酒：将45ml波本威士忌直接倒入冰杯</li><li>预冷处理：通过冰块快速降低酒液温度</li><li>添加苏打水：沿杯壁缓慢倒入苏打水至八分满，尽量减少气泡溢出</li><li>调和方式：轻微晃动杯子利用气泡自然调和，避免过度搅拌</li><li>装饰完成（可选）：用柠檬皮轻挤释放皮油于酒液表面增香</li></ol><p>🎥 <a href=\"http://xhslink.com/o/7XmhDbNHkry\" target=\"_blank\">点击查看完整制作视频教程</a></p>",
+        "type": "sop",
+        "keywords": ["高球", "highball", "波本威士忌", "苏打水", "鸡尾酒"],
+        "category": "长饮",
+        "strength": "中"
+    }
+}
