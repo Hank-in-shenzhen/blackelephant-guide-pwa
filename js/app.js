@@ -87,14 +87,21 @@ function showAllItems() {
     let html = '<div class="card-grid">';
     for (const [key, item] of Object.entries(filteredData)) {
         const strengthColor = getStrengthColor(item.strength);
+        let extraTags = '';
+        if (item.strength) {
+            extraTags = `<span class="strength-tag" style="background-color: ${strengthColor}">${item.strength}</span>`;
+        } else if (item.type === 'food') {
+            extraTags = `<span class="taste-tag">${item.taste}</span>`;
+        }
         html += `
             <div class="card" data-key="${key}">
                 <div class="card-header">
                     <h3 class="card-title">${item.title}</h3>
-                    ${item.strength ? `<span class="strength-tag" style="background-color: ${strengthColor}">${item.strength}</span>` : ''}
+                    ${extraTags}
                 </div>
                 <div class="card-footer">
                     <span class="category-tag">${item.category || item.type}</span>
+                    ${item.makingTime ? `<span class="time-tag">${item.makingTime}</span>` : ''}
                     <button class="view-btn">查看详情</button>
                 </div>
             </div>
@@ -244,6 +251,16 @@ function filterData(data, filter, flavor) {
             } else if (filter === 'drink' && item.category === '饮品') {
                 result[key] = item;
             } else if (filter === 'flow' && item.type === 'flow') {
+                result[key] = item;
+            } else if (filter === 'food' && item.type === 'food') {
+                result[key] = item;
+            } else if (filter === 'fried' && item.category === '炸物') {
+                result[key] = item;
+            } else if (filter === 'snack' && item.category === '小食') {
+                result[key] = item;
+            } else if (filter === 'main' && item.category === '主食') {
+                result[key] = item;
+            } else if (filter === 'signature-food' && item.category === '招牌小吃') {
                 result[key] = item;
             }
         }
