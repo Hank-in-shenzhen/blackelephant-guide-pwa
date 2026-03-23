@@ -548,3 +548,166 @@ header h1 {
     color: rgba(255, 255, 255, 0.9);
     font-size: 15px;
 }
+
+/* ==================== SOP双模式样式 ==================== */
+.sop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.mode-switch-btn {
+    padding: 8px 16px;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.mode-switch-btn:hover {
+    background-color: #059669;
+}
+
+/* 快速操作模式 */
+.fast-mode {
+    text-align: center;
+}
+
+.fast-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #1e293b;
+    margin-bottom: 24px;
+}
+
+.fast-ingredients {
+    background-color: #f8fafc;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.fast-ingredients h3 {
+    font-size: 18px;
+    color: #334155;
+    margin-bottom: 12px;
+}
+
+.ingredients-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+}
+
+.ingredient-item {
+    font-size: 16px;
+    color: #475569;
+    padding: 6px 12px;
+    background-color: white;
+    border-radius: 6px;
+    border-left: 4px solid #3b82f6;
+}
+
+.step-container {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    padding: 40px 20px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.step-number {
+    font-size: 18px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 16px;
+}
+
+.step-content {
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    line-height: 1.4;
+    margin-bottom: 32px;
+}
+
+.step-progress {
+    width: 100%;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: white;
+    transition: width 0.3s ease;
+}
+
+.step-controls {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.step-btn {
+    padding: 16px 32px;
+    background-color: #e2e8f0;
+    color: #334155;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 140px;
+}
+
+.step-btn:hover:not(:disabled) {
+    background-color: #cbd5e1;
+    transform: translateY(-2px);
+}
+
+.step-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 学习模式 */
+.learn-mode {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* 移动端适配 */
+@media (max-width: 480px) {
+    .step-content {
+        font-size: 24px;
+    }
+
+    .step-controls {
+        flex-direction: column;
+    }
+
+    .step-btn {
+        width: 100%;
+    }
+
+    .fast-title {
+        font-size: 22px;
+    }
+}

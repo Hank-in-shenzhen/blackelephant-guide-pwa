@@ -288,19 +288,167 @@ function filterData(data, filter, flavor) {
     return filteredResult;
 }
 
-// 显示详情
+// 解析SOP内容，提取配方和步骤
+function parseSopContent(content) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+
+    // 提取配方
+    const ingredients = [];
+    const ingredientsEl = doc.querySelector('h3:has(+ p)') || doc.querySelector('h3 + p')?.previousElementSibling;
+    if (ingredientsEl && ingredientsEl.textContent.includes('配方')) {
+        let nextEl = ingredientsEl.nextElementSibling;
+        while (nextEl && nextEl.tagName === 'P') {
+            ingredients.push(nextEl.textContent);
+            nextEl = nextEl.nextElementSibling;
+        }
+    }
+
+    // 提取步骤
+    const steps = [];
+    const stepsEl = doc.querySelector('h3:has(+ ol)') || doc.querySelector('h3 + ol')?.previousElementSibling;
+    if (stepsEl && stepsEl.textContent.includes('步骤')) {
+        const ol = stepsEl.nextElementSibling;
+        if (ol) {
+            ol.querySelectorAll('li').forEach(li => {
+                steps.push(li.textContent);
+            });
+        }
+    }
+
+    // 提取注意事项
+    const notes = [];
+    const notesEl = doc.querySelector('h3:has(+ p):not(:has(+ p + ol))') || doc.querySelector('h3 + p:not(:has(+ ol))')?.previousElementSibling;
+    if (notesEl && notesEl.textContent.includes('注意')) {
+        let nextEl = notesEl.nextElementSibling;
+        while (nextEl && nextEl.tagName === 'P' && !nextEl.textContent.includes('🎥')) {
+            notes.push(nextEl.textContent);
+            nextEl = nextEl.nextElementSibling;
+        }
+    }
+
+    // 提取视频链接
+    const videoLink = doc.querySelector('a[target="_blank"]')?.href || '';
+
+    return { ingredients, steps, notes, videoLink };
+}
+
+// 显示详情（默认快速操作模式）
 function showDetail(item) {
     const resultSection = document.getElementById('resultSection');
-    resultSection.innerHTML = `
-        <button class="back-btn">← 返回列表</button>
-        <div class="result-title">${item.title}</div>
-        <div class="result-content">${item.content}</div>
-    `;
+    const sopData = parseSopContent(item.content);
+    let currentStep = 0;
+    let currentMode = 'fast'; // fast:快速操作模式, learn:学习模式
 
-    // 绑定返回按钮事件
-    document.querySelector('.back-btn').addEventListener('click', () => {
-        showAllItems();
-    });
+    // 渲染页面
+    function render() {
+        if (currentMode === 'fast') {
+            // 快速操作模式
+            const currentStepData = sopData.steps[currentStep] || '没有步骤信息';
+            resultSection.innerHTML = `
+                <div class="sop-header">
+                    <button class="back-btn">← 返回列表</button>
+                    <button class="mode-switch-btn" id="modeSwitch">📚 学习模式</button>
+                </div>
+                <div class="fast-mode">
+                    <div class="fast-title">${item.title}</div>
+                    ${sopData.ingredients.length > 0 ? `
+                        <div class="fast-ingredients">
+                            <h3>原料</h3>
+                            <div class="ingredients-list">
+                                ${sopData.ingredients.map(ing => `<div class="ingredient-item">${ing}</div>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    <div class="step-container">
+                        <div class="step-number">第 ${currentStep + 1}/${sopData.steps.length} 步</div>
+                        <div class="step-content">${currentStepData}</div>
+                        <div class="step-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${((currentStep + 1)/sopData.steps.length) * 100}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-controls">
+                        <button class="step-btn" ${currentStep === 0 ? 'disabled' : ''} id="prevStep">⬅️ 上一步</button>
+                        <button class="step-btn" ${currentStep === sopData.steps.length - 1 ? 'disabled' : ''} id="nextStep">下一步 ➡️</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            // 学习模式
+            resultSection.innerHTML = `
+                <div class="sop-header">
+                    <button class="back-btn">← 返回列表</button>
+                    <button class="mode-switch-btn" id="modeSwitch">⚡ 快速模式</button>
+                </div>
+                <div class="learn-mode">
+                    <div class="result-title">${item.title}</div>
+                    <div class="result-content">${item.content}</div>
+                </div>
+            `;
+        }
+
+        // 绑定事件
+        bindEvents();
+    }
+
+    // 绑定所有事件
+    function bindEvents() {
+        // 返回按钮
+        document.querySelector('.back-btn').addEventListener('click', () => {
+            showAllItems();
+        });
+
+        // 模式切换按钮
+        document.getElementById('modeSwitch').addEventListener('click', () => {
+            currentMode = currentMode === 'fast' ? 'learn' : 'fast';
+            render();
+        });
+
+        // 快速模式的步骤控制
+        if (currentMode === 'fast') {
+            // 上一步
+            document.getElementById('prevStep')?.addEventListener('click', () => {
+                if (currentStep > 0) {
+                    currentStep--;
+                    render();
+                }
+            });
+
+            // 下一步
+            document.getElementById('nextStep')?.addEventListener('click', () => {
+                if (currentStep < sopData.steps.length - 1) {
+                    currentStep++;
+                    render();
+                }
+            });
+
+            // 键盘控制
+            document.removeEventListener('keydown', handleKeydown);
+            document.addEventListener('keydown', handleKeydown);
+
+            // 保持屏幕常亮
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen').catch(() => {});
+            }
+        }
+    }
+
+    // 键盘控制步骤
+    function handleKeydown(e) {
+        if (currentMode !== 'fast') return;
+        if (e.key === 'ArrowLeft' && currentStep > 0) {
+            currentStep--;
+            render();
+        } else if (e.key === 'ArrowRight' && currentStep < sopData.steps.length - 1) {
+            currentStep++;
+            render();
+        }
+    }
+
+    // 初始渲染
+    render();
 }
 
 // 展示结果（旧版保留）
