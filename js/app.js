@@ -145,20 +145,45 @@ function handleFilter() {
 // 处理搜索
 function handleSearch() {
     const searchInput = document.getElementById('searchInput');
-    const keyword = searchInput.value.trim().toLowerCase();
+    let keyword = searchInput.value.trim().toLowerCase();
+
+    // 清理关键词：去掉标点符号、特殊字符和空格
+    keyword = keyword.replace(/[。，.,！!？?;:：\s]/g, '').trim();
 
     if (!keyword) {
         showAllItems();
         return;
     }
 
-    let filteredData = filterData(guideData, currentFilter, currentFlavor);
-    let results = {};
+    // 先进行精确匹配
+    let exactMatch = null;
+    for (const [key, item] of Object.entries(guideData)) {
+        if (item.type === 'checklist') continue;
+        if (key.toLowerCase() === keyword ||
+            item.title.toLowerCase().replace(/\s/g, '') === keyword) {
+            exactMatch = item;
+            break;
+        }
+    }
 
-    for (const [key, item] of Object.entries(filteredData)) {
-        if (key.toLowerCase().includes(keyword) ||
-            item.title.toLowerCase().includes(keyword) ||
-            (item.keywords && item.keywords.some(k => k.toLowerCase().includes(keyword)))) {
+    if (exactMatch) {
+        showDetail(exactMatch);
+        return;
+    }
+
+    // 再进行模糊匹配
+    let results = {};
+    for (const [key, item] of Object.entries(guideData)) {
+        if (item.type === 'checklist') continue;
+
+        const cleanKey = key.toLowerCase().replace(/\s/g, '');
+        const cleanTitle = item.title.toLowerCase().replace(/\s/g, '');
+
+        if (cleanKey.includes(keyword) ||
+            cleanTitle.includes(keyword) ||
+            (item.keywords && item.keywords.some(k =>
+                k && k.toLowerCase().replace(/\s/g, '').includes(keyword)
+            ))) {
             results[key] = item;
         }
     }
@@ -187,7 +212,6 @@ function handleSearch() {
                     </div>
                     <div class="card-footer">
                         <span class="category-tag">${item.category || item.type}</span>
-                        <button class="view-btn">查看详情</button>
                     </div>
                 </div>
             `;
@@ -195,14 +219,6 @@ function handleSearch() {
         html += '</div>';
 
         resultSection.innerHTML = html;
-
-        // 绑定卡片点击事件
-        document.querySelectorAll('.card').forEach(card => {
-            card.addEventListener('click', () => {
-                const key = card.dataset.key;
-                showDetail(guideData[key]);
-            });
-        });
     }
 }
 
@@ -240,6 +256,9 @@ function filterData(data, filter, flavor) {
     // 先应用分类筛选
     if (filter === 'all') {
         result = { ...data };
+        // 首页全部列表隐藏到店和打烊流程（右上角已有专门入口）
+        delete result['上班了'];
+        delete result['下班了'];
     } else {
         for (const [key, item] of Object.entries(data)) {
             if (filter === 'long' && item.category === '长饮') {
@@ -337,14 +356,31 @@ function parseSopContent(content) {
 function showDetail(item) {
     const resultSection = document.getElementById('resultSection');
     const sopData = parseSopContent(item.content);
-    let currentStep = 0;
     let currentMode = 'fast'; // fast:快速操作模式, learn:学习模式
+
+    // 高亮处理：原料加粗，剂量橙色
+    function highlightContent(text) {
+        // 匹配剂量数字+单位，橙色显示
+        text = text.replace(/(\d+\.?\d*\s*(ml|g|盎司|勺|颗|片|个|滴))/g, '<span style="color: #f59e0b; font-weight: bold;">$1</span>');
+        // 匹配原料名称，加粗
+        text = text.replace(/^([^：:]+[^\d])[：:]/g, '<strong>$1：</strong>');
+        return text;
+    }
 
     // 渲染页面
     function render() {
         if (currentMode === 'fast') {
-            // 快速操作模式
-            const currentStepData = sopData.steps[currentStep] || '没有步骤信息';
+            // 快速操作模式：单页显示所有内容
+            let stepsHtml = '';
+            sopData.steps.forEach((step, index) => {
+                stepsHtml += `
+                    <div class="fast-step">
+                        <div class="fast-step-number">${index + 1}</div>
+                        <div class="fast-step-content">${highlightContent(step)}</div>
+                    </div>
+                `;
+            });
+
             resultSection.innerHTML = `
                 <div class="sop-header">
                     <button class="back-btn">← 返回列表</button>
@@ -354,25 +390,20 @@ function showDetail(item) {
                     <div class="fast-title">${item.title}</div>
                     ${sopData.ingredients.length > 0 ? `
                         <div class="fast-ingredients">
-                            <h3>原料</h3>
-                            <div class="ingredients-list">
-                                ${sopData.ingredients.map(ing => `<div class="ingredient-item">${ing}</div>`).join('')}
+                            <div class="ingredients-list-inline">
+                                <strong>原料：</strong>${sopData.ingredients.map(ing => highlightContent(ing)).join('、')}
                             </div>
                         </div>
                     ` : ''}
-                    <div class="step-container">
-                        <div class="step-number">第 ${currentStep + 1}/${sopData.steps.length} 步</div>
-                        <div class="step-content">${currentStepData}</div>
-                        <div class="step-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${((currentStep + 1)/sopData.steps.length) * 100}%"></div>
-                            </div>
+                    <div class="fast-steps-container">
+                        <h3>步骤</h3>
+                        ${stepsHtml}
+                    </div>
+                    ${sopData.videoLink ? `
+                        <div class="fast-video">
+                            <a href="${sopData.videoLink}" target="_blank" class="video-btn">🎥 观看教学视频</a>
                         </div>
-                    </div>
-                    <div class="step-controls">
-                        <button class="step-btn" ${currentStep === 0 ? 'disabled' : ''} id="prevStep">⬅️ 上一步</button>
-                        <button class="step-btn" ${currentStep === sopData.steps.length - 1 ? 'disabled' : ''} id="nextStep">下一步 ➡️</button>
-                    </div>
+                    ` : ''}
                 </div>
             `;
         } else {
@@ -385,6 +416,11 @@ function showDetail(item) {
                 <div class="learn-mode">
                     <div class="result-title">${item.title}</div>
                     <div class="result-content">${item.content}</div>
+                </div>
+                <!-- 底部全局搜索框 -->
+                <div class="global-search-section">
+                    <input type="text" id="globalSearchInput" placeholder="快速搜索其他SOP..." autocomplete="off" onkeypress="if(event.key==='Enter') handleGlobalSearch()">
+                    <button id="globalSearchBtn" onclick="handleGlobalSearch()">查询</button>
                 </div>
             `;
         }
@@ -406,49 +442,70 @@ function showDetail(item) {
             render();
         });
 
-        // 快速模式的步骤控制
-        if (currentMode === 'fast') {
-            // 上一步
-            document.getElementById('prevStep')?.addEventListener('click', () => {
-                if (currentStep > 0) {
-                    currentStep--;
-                    render();
-                }
-            });
-
-            // 下一步
-            document.getElementById('nextStep')?.addEventListener('click', () => {
-                if (currentStep < sopData.steps.length - 1) {
-                    currentStep++;
-                    render();
-                }
-            });
-
-            // 键盘控制
-            document.removeEventListener('keydown', handleKeydown);
-            document.addEventListener('keydown', handleKeydown);
-
-            // 保持屏幕常亮
-            if ('wakeLock' in navigator) {
-                navigator.wakeLock.request('screen').catch(() => {});
-            }
-        }
-    }
-
-    // 键盘控制步骤
-    function handleKeydown(e) {
-        if (currentMode !== 'fast') return;
-        if (e.key === 'ArrowLeft' && currentStep > 0) {
-            currentStep--;
-            render();
-        } else if (e.key === 'ArrowRight' && currentStep < sopData.steps.length - 1) {
-            currentStep++;
-            render();
+        // 保持屏幕常亮
+        if ('wakeLock' in navigator) {
+            navigator.wakeLock.request('screen').catch(() => {});
         }
     }
 
     // 初始渲染
     render();
+}
+
+// 全局搜索功能（详情页底部搜索框）
+function handleGlobalSearch() {
+    const searchInput = document.getElementById('globalSearchInput');
+    let keyword = searchInput.value.trim().toLowerCase();
+
+    // 清理关键词
+    keyword = keyword.replace(/[。，.,！!？?;:：\s]/g, '').trim();
+
+    if (!keyword) return;
+
+    // 匹配逻辑和主搜索一致
+    let exactMatch = null;
+    for (const [key, item] of Object.entries(guideData)) {
+        if (item.type === 'checklist') continue;
+        if (key.toLowerCase() === keyword ||
+            item.title.toLowerCase().replace(/\s/g, '') === keyword) {
+            exactMatch = item;
+            break;
+        }
+    }
+
+    if (exactMatch) {
+        showDetail(exactMatch);
+        return;
+    }
+
+    // 模糊匹配
+    let results = {};
+    for (const [key, item] of Object.entries(guideData)) {
+        if (item.type === 'checklist') continue;
+
+        const cleanKey = key.toLowerCase().replace(/\s/g, '');
+        const cleanTitle = item.title.toLowerCase().replace(/\s/g, '');
+
+        if (cleanKey.includes(keyword) ||
+            cleanTitle.includes(keyword) ||
+            (item.keywords && item.keywords.some(k =>
+                k && k.toLowerCase().replace(/\s/g, '').includes(keyword)
+            ))) {
+            results[key] = item;
+        }
+    }
+
+    if (Object.keys(results).length === 1) {
+        const key = Object.keys(results)[0];
+        showDetail(results[key]);
+    } else if (Object.keys(results).length > 1) {
+        // 多个结果跳回列表页显示
+        document.getElementById('searchInput').value = keyword;
+        showAllItems();
+        handleSearch();
+    } else {
+        alert('未找到相关SOP');
+    }
 }
 
 // 展示结果（旧版保留）
@@ -630,4 +687,17 @@ function toggleChecklistItem(index) {
     saveChecklistData();
     renderChecklist();
 }
+
+// 全局卡片点击委托，确保所有卡片点击都能跳转到详情
+document.addEventListener('click', (e) => {
+    const card = e.target.closest('.card');
+    if (card && !card.classList.contains('checklist-item')) {
+        const key = card.dataset.key;
+        if (key && window.guideData && window.guideData[key]) {
+            e.preventDefault();
+            e.stopPropagation();
+            showDetail(window.guideData[key]);
+        }
+    }
+});
 

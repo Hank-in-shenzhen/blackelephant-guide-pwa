@@ -14,7 +14,7 @@ body {
 .container {
     max-width: 600px;
     margin: 0 auto;
-    padding: 20px 16px;
+    padding: 20px 16px 100px;
     min-height: 100vh;
 }
 
@@ -575,116 +575,159 @@ header h1 {
 
 /* 快速操作模式 */
 .fast-mode {
-    text-align: center;
+    text-align: left;
 }
 
 .fast-title {
-    font-size: 28px;
+    font-size: 20px;
     font-weight: bold;
     color: #1e293b;
-    margin-bottom: 24px;
+    margin-bottom: 12px;
+    text-align: center;
 }
 
 .fast-ingredients {
     background-color: #f8fafc;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 24px;
-    text-align: left;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
 }
 
-.fast-ingredients h3 {
+.fast-ingredients h3,
+.fast-steps-container h3 {
     font-size: 18px;
     color: #334155;
     margin-bottom: 12px;
+    font-weight: 600;
 }
 
 .ingredients-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
 }
 
 .ingredient-item {
     font-size: 16px;
     color: #475569;
-    padding: 6px 12px;
+    padding: 8px 12px;
     background-color: white;
     border-radius: 6px;
-    border-left: 4px solid #3b82f6;
+    border-left: 3px solid #3b82f6;
+    line-height: 1.5;
 }
 
-.step-container {
+.ingredients-list-inline {
+    font-size: 16px;
+    color: #475569;
+    line-height: 1.6;
+}
+
+.ingredients-list-inline strong {
+    color: #1e293b;
+    margin-right: 8px;
+}
+
+.fast-steps-container {
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    padding: 40px 20px;
-    border-radius: 16px;
-    margin-bottom: 24px;
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    color: white;
 }
 
-.step-number {
+.fast-steps-container h3 {
+    color: white;
+}
+
+.fast-step {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+}
+
+.fast-step:last-child {
+    margin-bottom: 0;
+}
+
+.fast-step-number {
+    width: 32px;
+    height: 32px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.fast-step-content {
     font-size: 18px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.5;
+    flex: 1;
+}
+
+.fast-video {
+    text-align: center;
     margin-bottom: 16px;
 }
 
-.step-content {
-    font-size: 32px;
-    font-weight: bold;
+.video-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #f59e0b;
     color: white;
-    line-height: 1.4;
-    margin-bottom: 32px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 16px;
+    transition: background-color 0.2s;
 }
 
-.step-progress {
-    width: 100%;
+.video-btn:hover {
+    background-color: #d97706;
 }
 
-.progress-bar {
-    width: 100%;
-    height: 8px;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background-color: white;
-    transition: width 0.3s ease;
-}
-
-.step-controls {
+/* 全局搜索框 */
+.global-search-section {
     display: flex;
-    gap: 16px;
-    justify-content: center;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e2e8f0;
 }
 
-.step-btn {
-    padding: 16px 32px;
-    background-color: #e2e8f0;
-    color: #334155;
+#globalSearchInput {
+    flex: 1;
+    padding: 12px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#globalSearchInput:focus {
+    border-color: #2563eb;
+}
+
+#globalSearchBtn {
+    padding: 12px 16px;
+    background-color: #2563eb;
+    color: white;
     border: none;
-    border-radius: 12px;
-    font-size: 18px;
+    border-radius: 8px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
-    min-width: 140px;
+    transition: background-color 0.2s;
 }
 
-.step-btn:hover:not(:disabled) {
-    background-color: #cbd5e1;
-    transform: translateY(-2px);
-}
-
-.step-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+#globalSearchBtn:hover {
+    background-color: #1d4ed8;
 }
 
 /* 学习模式 */
@@ -694,20 +737,54 @@ header h1 {
 }
 
 /* 移动端适配 */
+/* 全局底部固定搜索框 */
+.global-search-fixed {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    padding: 12px 16px;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+}
+
+.global-search-fixed .search-section {
+    max-width: 600px;
+    margin: 0 auto;
+    margin-bottom: 0;
+}
+
 @media (max-width: 480px) {
-    .step-content {
-        font-size: 24px;
-    }
-
-    .step-controls {
-        flex-direction: column;
-    }
-
-    .step-btn {
-        width: 100%;
+    .container {
+        padding-bottom: 90px;
     }
 
     .fast-title {
-        font-size: 22px;
+        font-size: 18px;
+    }
+
+    .fast-step-content {
+        font-size: 16px;
+    }
+
+    .ingredient-item {
+        font-size: 14px;
+    }
+
+    .ingredients-list {
+        grid-template-columns: 1fr;
+    }
+
+    .ingredients-list-inline {
+        font-size: 14px;
+    }
+
+    .global-search-section {
+        flex-direction: column;
+    }
+
+    #globalSearchBtn {
+        width: 100%;
     }
 }

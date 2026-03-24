@@ -1,12 +1,52 @@
-# 黑象工作指引PWA - 项目开发规则
+# CLAUDE.md
 
-## 项目概述
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
+## 黑象工作指引PWA - 项目开发规则
+
+### 项目概述
 - **项目名称**：黑象工作指引督导应用
 - **部署地址**：https://hank-in-shenzhen.github.io/blackelephant-guide-pwa/ (GitHub Pages)
 - **备用部署**：https://blackelephant-guide-pwa.vercel.app/ (Vercel)
 - **GitHub仓库**：https://github.com/Hank-in-shenzhen/blackelephant-guide-pwa.git
 - **技术栈**：纯 HTML + CSS + JavaScript（无框架依赖）
 - **主要部署平台**：GitHub Pages
+
+---
+
+## 常用命令
+### 本地开发
+```bash
+# 启动本地预览服务器（端口8080）
+npx serve -l 8080
+# 或使用Python
+python3 -m http.server 8080
+```
+
+### 清理端口占用
+```bash
+# 杀死占用8080端口的进程
+lsof -ti:8080 | xargs kill -9
+```
+
+---
+
+## 高层代码架构
+### 整体架构
+纯静态无后端项目，所有数据存储在本地JSON文件中：
+1. **视图层**：`index.html` - 包含所有UI结构，无模板引擎
+2. **样式层**：`css/style.css` - 全局样式，响应式设计
+3. **逻辑层**：`js/app.js` - 所有交互逻辑（搜索、筛选、SOP展示、Checklist等）
+4. **数据层**：`data/guide-data.json` - 全量SOP、Checklist数据
+5. **PWA层**：`manifest.json` + `service-worker.js` - 离线缓存、桌面安装支持
+
+### 核心特性
+- 客户端本地计算，无服务器请求
+- localStorage持久化用户状态（Checklist进度、自定义设置）
+- 全局事件委托处理动态元素交互
+- 搜索算法：关键词归一化 + 精确匹配优先 + 模糊匹配兜底
 
 ---
 
@@ -74,6 +114,7 @@
 每次回来开发，按以下步骤：
 1. 先看 `PROJECT_STATUS.md` 了解当前状态
 2. 确定要开发的功能
-3. 修改对应文件
-4. 提交并推送到GitHub
-5. 验证在线部署效果
+3. 启动本地服务器验证现有功能
+4. 修改对应文件
+5. 本地测试通过后提交并推送到GitHub
+6. 验证在线部署效果

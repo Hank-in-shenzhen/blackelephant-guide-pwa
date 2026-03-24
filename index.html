@@ -45,11 +45,6 @@
             </div>
         </div>
 
-        <div class="search-section">
-            <input type="text" id="searchInput" placeholder="输入关键词，如：到店、打烊、莫吉托" autocomplete="off">
-            <button id="searchBtn">查询</button>
-        </div>
-
         <div class="result-section" id="resultSection">
             <div class="welcome">
                 <p>欢迎使用黑象工作指引系统，请输入关键词查询相关流程或SOP</p>
@@ -86,6 +81,14 @@
                     <button class="reset-btn" id="reset-btn">🔄 重置清单</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- 全局底部搜索框 -->
+    <div class="global-search-fixed">
+        <div class="search-section">
+            <input type="text" id="searchInput" placeholder="输入关键词，如：到店、打烊、莫吉托" autocomplete="off" onkeypress="if(event.key==='Enter') handleSearch()">
+            <button id="searchBtn" onclick="handleSearch()">查询</button>
         </div>
     </div>
 
