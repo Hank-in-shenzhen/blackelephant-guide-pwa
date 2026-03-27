@@ -9,13 +9,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     initEventListeners();
     showAllItems();
     initNavAndChecklist();
+    initAdmin(); // 新增：初始化后台管理
 });
 
-// 加载指引数据
+// 加载指引数据 - 优先从localStorage读取，无数据时从JSON文件加载
 async function loadGuideData() {
+    // 先尝试从localStorage加载
+    const savedData = localStorage.getItem('guideData');
+    if (savedData) {
+        try {
+            guideData = JSON.parse(savedData);
+            console.log('从本地存储加载数据');
+            return;
+        } catch (error) {
+            console.error('本地存储数据解析失败:', error);
+            localStorage.removeItem('guideData'); // 清除损坏的数据
+        }
+    }
+
+    // 从JSON文件加载
     try {
         const response = await fetch('./data/guide-data.json');
         guideData = await response.json();
+        console.log('从JSON文件加载数据');
     } catch (error) {
         console.error('数据加载失败:', error);
         showResult({
@@ -28,14 +44,10 @@ async function loadGuideData() {
 
 // 初始化事件监听
 function initEventListeners() {
-    const searchBtn = document.getElementById('searchBtn');
     const searchInput = document.getElementById('searchInput');
     const chips = document.querySelectorAll('.chip');
 
-    // 点击搜索按钮
-    searchBtn.addEventListener('click', handleSearch);
-
-    // 回车搜索（防抖）
+    // 输入搜索（防抖）
     searchInput.addEventListener('input', () => {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(handleSearch, 300);
@@ -102,7 +114,6 @@ function showAllItems() {
                 <div class="card-footer">
                     <span class="category-tag">${item.category || item.type}</span>
                     ${item.makingTime ? `<span class="time-tag">${item.makingTime}</span>` : ''}
-                    <button class="view-btn">查看详情</button>
                 </div>
             </div>
         `;
@@ -142,76 +153,69 @@ function handleFilter() {
     }
 }
 
-// 处理搜索
+// 处理搜索（最简单有效的方法，确保能工作）
 function handleSearch() {
     const searchInput = document.getElementById('searchInput');
     let keyword = searchInput.value.trim().toLowerCase();
-
-    // 清理关键词：去掉标点符号、特殊字符和空格
-    keyword = keyword.replace(/[。，.,！!？?;:：\s]/g, '').trim();
 
     if (!keyword) {
         showAllItems();
         return;
     }
 
-    // 先进行精确匹配
-    let exactMatch = null;
+    // 简单模糊匹配
+    const results = [];
+
+    // 需要过滤掉的模板项
+    const excludedKeys = ['===== 小吃类SOP模板开始 =====', '小吃模板示例'];
+
     for (const [key, item] of Object.entries(guideData)) {
-        if (item.type === 'checklist') continue;
-        if (key.toLowerCase() === keyword ||
-            item.title.toLowerCase().replace(/\s/g, '') === keyword) {
-            exactMatch = item;
-            break;
+        // 跳过非对象类型的数据项、checklist和模板项
+        if (typeof item !== 'object' || item === null ||
+            item.type === 'checklist' || excludedKeys.includes(key)) {
+            continue;
+        }
+
+        const title = item.title ? item.title.toLowerCase() : '';
+        const keyStr = key.toLowerCase();
+        const keywords = item.keywords || [];
+
+        if (title.includes(keyword) ||
+            keyStr.includes(keyword) ||
+            keywords.some(k => k.toLowerCase().includes(keyword))) {
+            results.push({ key, item });
         }
     }
 
-    if (exactMatch) {
-        showDetail(exactMatch);
-        return;
-    }
-
-    // 再进行模糊匹配
-    let results = {};
-    for (const [key, item] of Object.entries(guideData)) {
-        if (item.type === 'checklist') continue;
-
-        const cleanKey = key.toLowerCase().replace(/\s/g, '');
-        const cleanTitle = item.title.toLowerCase().replace(/\s/g, '');
-
-        if (cleanKey.includes(keyword) ||
-            cleanTitle.includes(keyword) ||
-            (item.keywords && item.keywords.some(k =>
-                k && k.toLowerCase().replace(/\s/g, '').includes(keyword)
-            ))) {
-            results[key] = item;
-        }
-    }
-
-    if (Object.keys(results).length === 0) {
+    if (results.length === 0) {
         showResult({
             title: '🔍 未找到相关指引',
             content: `<p>您输入的关键词「${keyword}」暂无匹配内容</p><p>请尝试其他关键词或切换筛选条件</p>`,
             type: 'no-result'
         });
-    } else if (Object.keys(results).length === 1) {
-        // 只有一个结果，直接显示详情
-        const key = Object.keys(results)[0];
-        showDetail(results[key]);
+    } else if (results.length === 1) {
+        showDetail(results[0].item);
     } else {
-        // 多个结果，显示卡片列表
         const resultSection = document.getElementById('resultSection');
         let html = '<div class="card-grid">';
-        for (const [key, item] of Object.entries(results)) {
+        for (const result of results) {
+            const { key, item } = result;
             const strengthColor = getStrengthColor(item.strength);
+            let extraTags = '';
+            if (item.strength) {
+                extraTags = `<span class="strength-tag" style="background-color: ${strengthColor}">${item.strength}</span>`;
+            } else if (item.type === 'food') {
+                extraTags = `<span class="taste-tag">${item.taste}</span>`;
+            }
             html += `
                 <div class="card" data-key="${key}">
                     <div class="card-header">
                         <h3 class="card-title">${item.title}</h3>
-                        ${item.strength ? `<span class="strength-tag" style="background-color: ${strengthColor}">${item.strength}</span>` : ''}
+                        ${extraTags}
                     </div>
                     <div class="card-footer">
                         <span class="category-tag">${item.category || item.type}</span>
+                        ${item.makingTime ? `<span class="time-tag">${item.makingTime}</span>` : ''}
                     </div>
                 </div>
             `;
@@ -219,6 +223,14 @@ function handleSearch() {
         html += '</div>';
 
         resultSection.innerHTML = html;
+
+        // 绑定卡片点击事件
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', () => {
+                const key = card.dataset.key;
+                showDetail(guideData[key]);
+            });
+        });
     }
 }
 
@@ -253,14 +265,24 @@ function matchKeyword(keyword) {
 function filterData(data, filter, flavor) {
     let result = {};
 
+    // 需要过滤掉的模板项和特定项
+    const excludedKeys = ['===== 小吃类SOP模板开始 =====', '小吃模板示例', '上班了', '下班了'];
+
     // 先应用分类筛选
     if (filter === 'all') {
-        result = { ...data };
-        // 首页全部列表隐藏到店和打烊流程（右上角已有专门入口）
-        delete result['上班了'];
-        delete result['下班了'];
+        // 复制数据并排除特定项
+        for (const [key, item] of Object.entries(data)) {
+            if (!excludedKeys.includes(key)) {
+                result[key] = item;
+            }
+        }
     } else {
         for (const [key, item] of Object.entries(data)) {
+            // 先排除特定项
+            if (excludedKeys.includes(key)) {
+                continue;
+            }
+
             if (filter === 'long' && item.category === '长饮') {
                 result[key] = item;
             } else if (filter === 'short' && item.category === '短饮') {
@@ -285,10 +307,10 @@ function filterData(data, filter, flavor) {
         }
     }
 
-    // 过滤掉checklist类型，只在checklist页面显示
+    // 过滤掉checklist类型和非对象类型，只在checklist页面显示
     const filteredResult = {};
     for (const [key, item] of Object.entries(result)) {
-        if (item.type !== 'checklist') {
+        if (typeof item === 'object' && item !== null && item.type !== 'checklist') {
             filteredResult[key] = item;
         }
     }
@@ -352,104 +374,29 @@ function parseSopContent(content) {
     return { ingredients, steps, notes, videoLink };
 }
 
-// 显示详情（默认快速操作模式）
+// 显示详情（快速操作模式 - 原学习模式内容，更直观）
 function showDetail(item) {
     const resultSection = document.getElementById('resultSection');
-    const sopData = parseSopContent(item.content);
-    let currentMode = 'fast'; // fast:快速操作模式, learn:学习模式
 
-    // 高亮处理：原料加粗，剂量橙色
-    function highlightContent(text) {
-        // 匹配剂量数字+单位，橙色显示
-        text = text.replace(/(\d+\.?\d*\s*(ml|g|盎司|勺|颗|片|个|滴))/g, '<span style="color: #f59e0b; font-weight: bold;">$1</span>');
-        // 匹配原料名称，加粗
-        text = text.replace(/^([^：:]+[^\d])[：:]/g, '<strong>$1：</strong>');
-        return text;
+    resultSection.innerHTML = `
+        <div class="sop-header">
+            <button class="back-btn">← 返回列表</button>
+        </div>
+        <div class="learn-mode">
+            <div class="result-title">${item.title}</div>
+            <div class="result-content">${item.content}</div>
+        </div>
+    `;
+
+    // 绑定事件
+    document.querySelector('.back-btn').addEventListener('click', () => {
+        showAllItems();
+    });
+
+    // 保持屏幕常亮
+    if ('wakeLock' in navigator) {
+        navigator.wakeLock.request('screen').catch(() => {});
     }
-
-    // 渲染页面
-    function render() {
-        if (currentMode === 'fast') {
-            // 快速操作模式：单页显示所有内容
-            let stepsHtml = '';
-            sopData.steps.forEach((step, index) => {
-                stepsHtml += `
-                    <div class="fast-step">
-                        <div class="fast-step-number">${index + 1}</div>
-                        <div class="fast-step-content">${highlightContent(step)}</div>
-                    </div>
-                `;
-            });
-
-            resultSection.innerHTML = `
-                <div class="sop-header">
-                    <button class="back-btn">← 返回列表</button>
-                    <button class="mode-switch-btn" id="modeSwitch">📚 学习模式</button>
-                </div>
-                <div class="fast-mode">
-                    <div class="fast-title">${item.title}</div>
-                    ${sopData.ingredients.length > 0 ? `
-                        <div class="fast-ingredients">
-                            <div class="ingredients-list-inline">
-                                <strong>原料：</strong>${sopData.ingredients.map(ing => highlightContent(ing)).join('、')}
-                            </div>
-                        </div>
-                    ` : ''}
-                    <div class="fast-steps-container">
-                        <h3>步骤</h3>
-                        ${stepsHtml}
-                    </div>
-                    ${sopData.videoLink ? `
-                        <div class="fast-video">
-                            <a href="${sopData.videoLink}" target="_blank" class="video-btn">🎥 观看教学视频</a>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        } else {
-            // 学习模式
-            resultSection.innerHTML = `
-                <div class="sop-header">
-                    <button class="back-btn">← 返回列表</button>
-                    <button class="mode-switch-btn" id="modeSwitch">⚡ 快速模式</button>
-                </div>
-                <div class="learn-mode">
-                    <div class="result-title">${item.title}</div>
-                    <div class="result-content">${item.content}</div>
-                </div>
-                <!-- 底部全局搜索框 -->
-                <div class="global-search-section">
-                    <input type="text" id="globalSearchInput" placeholder="快速搜索其他SOP..." autocomplete="off" onkeypress="if(event.key==='Enter') handleGlobalSearch()">
-                    <button id="globalSearchBtn" onclick="handleGlobalSearch()">查询</button>
-                </div>
-            `;
-        }
-
-        // 绑定事件
-        bindEvents();
-    }
-
-    // 绑定所有事件
-    function bindEvents() {
-        // 返回按钮
-        document.querySelector('.back-btn').addEventListener('click', () => {
-            showAllItems();
-        });
-
-        // 模式切换按钮
-        document.getElementById('modeSwitch').addEventListener('click', () => {
-            currentMode = currentMode === 'fast' ? 'learn' : 'fast';
-            render();
-        });
-
-        // 保持屏幕常亮
-        if ('wakeLock' in navigator) {
-            navigator.wakeLock.request('screen').catch(() => {});
-        }
-    }
-
-    // 初始渲染
-    render();
 }
 
 // 全局搜索功能（详情页底部搜索框）
@@ -457,55 +404,12 @@ function handleGlobalSearch() {
     const searchInput = document.getElementById('globalSearchInput');
     let keyword = searchInput.value.trim().toLowerCase();
 
-    // 清理关键词
-    keyword = keyword.replace(/[。，.,！!？?;:：\s]/g, '').trim();
-
     if (!keyword) return;
 
-    // 匹配逻辑和主搜索一致
-    let exactMatch = null;
-    for (const [key, item] of Object.entries(guideData)) {
-        if (item.type === 'checklist') continue;
-        if (key.toLowerCase() === keyword ||
-            item.title.toLowerCase().replace(/\s/g, '') === keyword) {
-            exactMatch = item;
-            break;
-        }
-    }
-
-    if (exactMatch) {
-        showDetail(exactMatch);
-        return;
-    }
-
-    // 模糊匹配
-    let results = {};
-    for (const [key, item] of Object.entries(guideData)) {
-        if (item.type === 'checklist') continue;
-
-        const cleanKey = key.toLowerCase().replace(/\s/g, '');
-        const cleanTitle = item.title.toLowerCase().replace(/\s/g, '');
-
-        if (cleanKey.includes(keyword) ||
-            cleanTitle.includes(keyword) ||
-            (item.keywords && item.keywords.some(k =>
-                k && k.toLowerCase().replace(/\s/g, '').includes(keyword)
-            ))) {
-            results[key] = item;
-        }
-    }
-
-    if (Object.keys(results).length === 1) {
-        const key = Object.keys(results)[0];
-        showDetail(results[key]);
-    } else if (Object.keys(results).length > 1) {
-        // 多个结果跳回列表页显示
-        document.getElementById('searchInput').value = keyword;
-        showAllItems();
-        handleSearch();
-    } else {
-        alert('未找到相关SOP');
-    }
+    // 使用与主搜索相同的逻辑
+    document.getElementById('searchInput').value = keyword;
+    showAllItems();
+    handleSearch();
 }
 
 // 展示结果（旧版保留）
@@ -701,3 +605,490 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// 清除缓存并刷新页面
+function clearCacheAndReload() {
+    localStorage.removeItem('guideData');
+    location.reload();
+}
+
+// ==================== 后台管理功能 ====================
+let adminLoggedIn = false;
+
+// 后台管理初始化
+function initAdmin() {
+    // 登录功能
+    const loginBtn = document.getElementById('adminLoginBtn');
+    const loginError = document.getElementById('adminLoginError');
+    const passwordInput = document.getElementById('adminPassword');
+
+    loginBtn.addEventListener('click', () => {
+        const password = passwordInput.value.trim();
+        loginError.style.display = 'none';
+
+        if (password === '123456') {
+            adminLoggedIn = true;
+            document.getElementById('admin-login').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            renderAdminSopList();
+        } else {
+            loginError.textContent = '密码错误，请重新输入';
+            loginError.style.display = 'block';
+            passwordInput.value = '';
+            passwordInput.focus();
+        }
+    });
+
+    passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            loginBtn.click();
+        }
+    });
+
+    // 后台导航切换
+    const adminNavTabs = document.querySelectorAll('.admin-nav-tab');
+    adminNavTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const adminTab = tab.dataset.adminTab;
+
+            adminNavTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            const panels = document.querySelectorAll('.admin-tab-panel');
+            panels.forEach(panel => {
+                if (panel.id === `${adminTab}-panel`) {
+                    panel.style.display = 'block';
+                } else {
+                    panel.style.display = 'none';
+                }
+            });
+
+            // 初始化对应面板
+            if (adminTab === 'sop-manage') {
+                renderAdminSopList();
+            } else if (adminTab === 'checklist-manage') {
+                renderChecklistEditPanel();
+            }
+        });
+    });
+
+    // SOP管理功能
+    document.getElementById('addSopBtn').addEventListener('click', () => {
+        openSopEditModal(null);
+    });
+
+    document.getElementById('closeSopModal').addEventListener('click', closeSopModal);
+    document.getElementById('cancelSopEdit').addEventListener('click', closeSopModal);
+    document.getElementById('saveSopBtn').addEventListener('click', saveSop);
+
+    document.getElementById('sopType').addEventListener('change', (e) => {
+        const type = e.target.value;
+        const categoryGroup = document.getElementById('sopCategoryGroup');
+        const strengthGroup = document.getElementById('sopStrengthGroup');
+        const flavorsGroup = document.getElementById('sopFlavorsGroup');
+        const tasteGroup = document.getElementById('sopTasteGroup');
+        const makingTimeGroup = document.getElementById('sopMakingTimeGroup');
+
+        if (type === 'cocktail') {
+            categoryGroup.style.display = 'block';
+            strengthGroup.style.display = 'block';
+            flavorsGroup.style.display = 'block';
+            tasteGroup.style.display = 'none';
+            makingTimeGroup.style.display = 'none';
+        } else if (type === 'food') {
+            categoryGroup.style.display = 'block';
+            strengthGroup.style.display = 'none';
+            flavorsGroup.style.display = 'none';
+            tasteGroup.style.display = 'block';
+            makingTimeGroup.style.display = 'block';
+        } else {
+            categoryGroup.style.display = 'none';
+            strengthGroup.style.display = 'none';
+            flavorsGroup.style.display = 'none';
+            tasteGroup.style.display = 'none';
+            makingTimeGroup.style.display = 'none';
+        }
+    });
+
+    // SOP搜索
+    document.getElementById('sopSearchInput').addEventListener('input', () => {
+        renderAdminSopList();
+    });
+
+    // Checklist管理功能
+    document.getElementById('addOpenChecklistItem').addEventListener('click', () => {
+        addChecklistItem('open');
+    });
+    document.getElementById('addCloseChecklistItem').addEventListener('click', () => {
+        addChecklistItem('close');
+    });
+    document.getElementById('saveChecklistBtn').addEventListener('click', saveChecklistChanges);
+
+    // 数据导出功能
+    document.getElementById('exportDataBtn').addEventListener('click', exportData);
+
+    // 数据重置功能
+    document.getElementById('resetDataBtn').addEventListener('click', resetToOriginalData);
+}
+
+// 渲染SOP列表
+function renderAdminSopList() {
+    const sopList = document.getElementById('sopList');
+    const searchInput = document.getElementById('sopSearchInput');
+    const searchKeyword = searchInput.value.toLowerCase().trim();
+    const filteredData = {};
+
+    // 需要过滤掉的模板项
+    const excludedKeys = ['===== 小吃类SOP模板开始 =====', '小吃模板示例'];
+
+    for (const [key, item] of Object.entries(guideData)) {
+        // 过滤掉checklist类型、模板项和非对象类型
+        if (typeof item !== 'object' || item === null ||
+            item.type === 'checklist' || excludedKeys.includes(key)) {
+            continue;
+        }
+
+        // 统一类型识别：支持 'sop' 和 'cocktail' 类型
+        const actualType = item.type === 'sop' ? 'cocktail' : item.type;
+
+        if (!searchKeyword ||
+            key.toLowerCase().includes(searchKeyword) ||
+            (item.title && item.title.toLowerCase().includes(searchKeyword)) ||
+            item.category?.toLowerCase().includes(searchKeyword) ||
+            item.strength?.toLowerCase().includes(searchKeyword) ||
+            item.keywords?.some(k => k.toLowerCase().includes(searchKeyword))) {
+            filteredData[key] = { ...item, type: actualType };
+        }
+    }
+
+    let html = '';
+    for (const [key, item] of Object.entries(filteredData)) {
+        // 统一类型识别：支持 'sop' 和 'cocktail' 类型
+        const actualType = item.type === 'sop' ? 'cocktail' : item.type;
+        const typeLabel = actualType === 'cocktail' ? '鸡尾酒' : actualType === 'food' ? '小吃' : '流程';
+
+        html += `
+            <div class="sop-item">
+                <div class="sop-info">
+                    <h4>${item.title}</h4>
+                    <p>类型: ${typeLabel}${item.category ? ` · 分类: ${item.category}` : ''}${item.strength ? ` · 酒精感: ${item.strength}` : ''}</p>
+                </div>
+                <div class="sop-actions">
+                    <button class="sop-edit-btn" onclick="editSop('${key}')">编辑</button>
+                    <button class="sop-delete-btn" onclick="deleteSop('${key}')">删除</button>
+                </div>
+            </div>
+        `;
+    }
+
+    if (Object.keys(filteredData).length === 0) {
+        html = `
+            <div class="no-result">
+                <h3>暂无相关SOP</h3>
+                <p>搜索条件: ${searchKeyword || '无'}</p>
+                ${!searchKeyword ? '<p>您可以点击「新增SOP」按钮添加新内容</p>' : '<p>请尝试调整搜索关键词</p>'}
+            </div>
+        `;
+    }
+
+    sopList.innerHTML = html;
+}
+
+// 打开SOP编辑模态框
+function openSopEditModal(sopKey) {
+    const modal = document.getElementById('sopEditModal');
+    const modalTitle = document.getElementById('sopModalTitle');
+    const keyInput = document.getElementById('sopKey');
+
+    keyInput.value = '';
+    document.getElementById('sopTitle').value = '';
+    document.getElementById('sopType').value = 'cocktail';
+    document.getElementById('sopCategory').value = '';
+    document.getElementById('sopStrength').value = '';
+    document.getElementById('sopFlavors').value = '';
+    document.getElementById('sopTaste').value = '咸香';
+    document.getElementById('sopMakingTime').value = '';
+    document.getElementById('sopKeywords').value = '';
+
+    // 初始化内容编辑器
+    document.getElementById('contentEditor').innerHTML = '';
+
+    if (sopKey) {
+        modalTitle.textContent = '编辑SOP';
+        const item = guideData[sopKey];
+        keyInput.value = sopKey;
+        document.getElementById('sopTitle').value = item.title;
+
+        // 统一类型处理：将 'sop' 类型转换为 'cocktail' 显示
+        const actualType = item.type === 'sop' ? 'cocktail' : item.type || 'cocktail';
+        document.getElementById('sopType').value = actualType;
+
+        document.getElementById('sopCategory').value = item.category || '';
+        document.getElementById('sopStrength').value = item.strength || '';
+        document.getElementById('sopFlavors').value = item.flavors ? item.flavors.join(',') : '';
+        document.getElementById('sopTaste').value = item.taste || '咸香';
+        document.getElementById('sopMakingTime').value = item.makingTime || '';
+        document.getElementById('sopKeywords').value = item.keywords ? item.keywords.join(',') : '';
+
+        // 直接加载原始HTML内容，保留视频链接和格式
+        document.getElementById('contentEditor').innerHTML = item.content || '';
+    } else {
+        modalTitle.textContent = '新增SOP';
+    }
+
+    // 根据类型显示/隐藏对应的字段
+    const type = document.getElementById('sopType').value;
+    const categoryGroup = document.getElementById('sopCategoryGroup');
+    const strengthGroup = document.getElementById('sopStrengthGroup');
+    const flavorsGroup = document.getElementById('sopFlavorsGroup');
+    const tasteGroup = document.getElementById('sopTasteGroup');
+    const makingTimeGroup = document.getElementById('sopMakingTimeGroup');
+
+    if (type === 'cocktail') {
+        categoryGroup.style.display = 'block';
+        strengthGroup.style.display = 'block';
+        flavorsGroup.style.display = 'block';
+        tasteGroup.style.display = 'none';
+        makingTimeGroup.style.display = 'none';
+    } else if (type === 'food') {
+        categoryGroup.style.display = 'block';
+        strengthGroup.style.display = 'none';
+        flavorsGroup.style.display = 'none';
+        tasteGroup.style.display = 'block';
+        makingTimeGroup.style.display = 'block';
+    } else {
+        categoryGroup.style.display = 'none';
+        strengthGroup.style.display = 'none';
+        flavorsGroup.style.display = 'none';
+        tasteGroup.style.display = 'none';
+        makingTimeGroup.style.display = 'none';
+    }
+
+    modal.style.display = 'flex';
+    document.getElementById('sopKey').focus();
+}
+
+// HTML转义
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// 关闭SOP编辑模态框
+function closeSopModal() {
+    document.getElementById('sopEditModal').style.display = 'none';
+}
+
+// 保存SOP
+function saveSop() {
+    let sopKey = document.getElementById('sopKey').value.trim();
+    const title = document.getElementById('sopTitle').value.trim();
+    const type = document.getElementById('sopType').value;
+    const category = document.getElementById('sopCategory').value.trim();
+    const strength = document.getElementById('sopStrength').value;
+    const flavorsStr = document.getElementById('sopFlavors').value.trim();
+    const taste = document.getElementById('sopTaste').value;
+    const makingTime = document.getElementById('sopMakingTime').value.trim();
+    const keywordsStr = document.getElementById('sopKeywords').value.trim();
+
+    // 从富文本编辑器获取内容
+    const content = document.getElementById('contentEditor').innerHTML.trim();
+
+    if (!title) {
+        alert('请填写标题');
+        return;
+    }
+
+    if (!content) {
+        alert('请填写内容');
+        return;
+    }
+
+    // 如果没有填写key，自动根据标题生成
+    if (!sopKey) {
+        // 移除表情符号和特殊字符，保留中文、字母、数字和基本符号
+        sopKey = title.replace(/[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}]/gu, '') // 移除表情
+            .replace(/[^\w\u4e00-\u9fff\-_]/g, '') // 移除特殊字符
+            .replace(/\s+/g, '-') // 空格转连字符
+            .toLowerCase()
+            .trim();
+
+        // 确保key不重复
+        let counter = 1;
+        let originalKey = sopKey;
+        while (sopKey in guideData) {
+            sopKey = `${originalKey}-${counter}`;
+            counter++;
+        }
+
+        document.getElementById('sopKey').value = sopKey;
+    }
+
+    const flavors = flavorsStr ? flavorsStr.split(/[,，]/).map(s => s.trim()).filter(Boolean) : [];
+    const keywords = keywordsStr ? keywordsStr.split(/[,，]/).map(s => s.trim()).filter(Boolean) : [];
+
+    guideData[sopKey] = {
+        title,
+        type,
+        category: category || undefined,
+        strength: strength || undefined,
+        flavors: flavors.length > 0 ? flavors : undefined,
+        taste: type === 'food' ? taste : undefined,
+        makingTime: type === 'food' ? makingTime : undefined,
+        keywords: keywords.length > 0 ? keywords : undefined,
+        content
+    };
+
+    closeSopModal();
+    renderAdminSopList();
+    showAllItems();
+
+    // 更新localStorage
+    if (typeof saveGuideData === 'function') {
+        saveGuideData();
+    }
+
+    alert('SOP保存成功');
+}
+
+// 编辑SOP
+function editSop(key) {
+    openSopEditModal(key);
+}
+
+// 删除SOP
+function deleteSop(key) {
+    if (!confirm('确定要删除该SOP吗？此操作无法撤销！')) {
+        return;
+    }
+
+    delete guideData[key];
+    renderAdminSopList();
+    showAllItems();
+
+    if (typeof saveGuideData === 'function') {
+        saveGuideData();
+    }
+
+    alert('SOP删除成功');
+}
+
+// 渲染Checklist编辑面板
+function renderChecklistEditPanel() {
+    const openChecklistEl = document.getElementById('openChecklistEdit');
+    const closeChecklistEl = document.getElementById('closeChecklistEdit');
+
+    let openHtml = '';
+    guideData['checklist-open']?.items?.forEach((item, index) => {
+        openHtml += `
+            <div class="checklist-edit-item">
+                <input type="text" data-index="${index}" value="${item}" onchange="updateChecklistItem('open', ${index}, this.value)">
+                <button class="delete-item-btn" onclick="deleteChecklistItem('open', ${index})">删除</button>
+            </div>
+        `;
+    });
+    openChecklistEl.innerHTML = openHtml;
+
+    let closeHtml = '';
+    guideData['checklist-close']?.items?.forEach((item, index) => {
+        closeHtml += `
+            <div class="checklist-edit-item">
+                <input type="text" data-index="${index}" value="${item}" onchange="updateChecklistItem('close', ${index}, this.value)">
+                <button class="delete-item-btn" onclick="deleteChecklistItem('close', ${index})">删除</button>
+            </div>
+        `;
+    });
+    closeChecklistEl.innerHTML = closeHtml;
+}
+
+// 添加Checklist项
+function addChecklistItem(type) {
+    const checklist = type === 'open' ? guideData['checklist-open'] : guideData['checklist-close'];
+    const newItem = `新项${checklist.items.length + 1}`;
+    checklist.items.push(newItem);
+
+    const container = document.getElementById(type === 'open' ? 'openChecklistEdit' : 'closeChecklistEdit');
+    const index = checklist.items.length - 1;
+    container.innerHTML += `
+        <div class="checklist-edit-item">
+            <input type="text" data-index="${index}" value="${newItem}" onchange="updateChecklistItem('${type}', ${index}, this.value)">
+            <button class="delete-item-btn" onclick="deleteChecklistItem('${type}', ${index})">删除</button>
+        </div>
+    `;
+}
+
+// 更新Checklist项
+function updateChecklistItem(type, index, value) {
+    const checklist = type === 'open' ? guideData['checklist-open'] : guideData['checklist-close'];
+    checklist.items[index] = value;
+}
+
+// 删除Checklist项
+function deleteChecklistItem(type, index) {
+    const checklist = type === 'open' ? guideData['checklist-open'] : guideData['checklist-close'];
+    checklist.items.splice(index, 1);
+    renderChecklistEditPanel();
+}
+
+// 保存Checklist更改
+function saveChecklistChanges() {
+    if (typeof saveGuideData === 'function') {
+        saveGuideData();
+    }
+
+    // 重置checklist数据
+    loadChecklistData();
+
+    alert('Checklist保存成功');
+}
+
+// 导出数据
+function exportData() {
+    const dataStr = JSON.stringify(guideData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `guide-data-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+    alert('数据导出成功');
+}
+
+// 重置为原始数据
+function resetToOriginalData() {
+    if (!confirm('⚠️ 确定要重置为原始数据吗？\n\n此操作会：\n1. 清除所有已编辑的内容\n2. 恢复到初始的SOP和Checklist数据\n3. 此操作不可撤销！')) {
+        return;
+    }
+
+    // 清除localStorage数据
+    localStorage.removeItem('guideData');
+
+    // 重新从JSON文件加载数据
+    loadGuideData().then(() => {
+        // 刷新显示
+        renderAdminSopList();
+        renderChecklistEditPanel();
+        showAllItems();
+
+        // 重置Checklist
+        loadChecklistData();
+
+        alert('✅ 数据已重置为原始状态');
+    });
+}
+
+// 保存数据到localStorage的函数（如果需要持久化）
+function saveGuideData() {
+    localStorage.setItem('guideData', JSON.stringify(guideData));
+}
+
+// 从localStorage加载数据的函数
+function loadGuideDataFromStorage() {
+    const savedData = localStorage.getItem('guideData');
+    if (savedData) {
+        guideData = JSON.parse(savedData);
+    }
+}

@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工作指引督导</title>
+    <title>黑象工作指引</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>📋 工作指引</h1>
+            <h1>🐘 黑象工作指引</h1>
         </header>
 
         <div class="nav-tabs">
             <button class="nav-tab active" data-tab="sop">📚 SOP查询</button>
             <button class="nav-tab" data-tab="checklist">✅ 开工/打烊</button>
+            <button class="nav-tab" data-tab="admin">⚙️ 后台管理</button>
         </div>
 
         <div id="sop-tab" class="tab-content">
@@ -47,7 +48,7 @@
 
         <div class="result-section" id="resultSection">
             <div class="welcome">
-                <p>欢迎使用黑象工作指引系统，请输入关键词查询相关流程或SOP</p>
+                <p>🐘 欢迎使用黑象工作指引系统，请输入关键词查询相关流程或SOP</p>
                 <div class="tips">
                     <p>💡 示例查询：</p>
                     <ul>
@@ -82,13 +83,132 @@
                 </div>
             </div>
         </div>
+
+        <div id="admin-tab" class="tab-content hidden">
+            <div id="admin-login" class="admin-login-container">
+                <h2>🔐 后台管理</h2>
+                <p class="admin-login-hint">请输入密码进入后台管理</p>
+                <input type="password" id="adminPassword" placeholder="输入密码" autocomplete="off">
+                <button id="adminLoginBtn">进入管理</button>
+                <p class="admin-login-error" id="adminLoginError" style="display: none; color: #ef4444; margin-top: 12px; font-size: 14px;"></p>
+            </div>
+            <div id="admin-panel" class="admin-panel-container" style="display: none;">
+                <div class="admin-nav">
+                    <button class="admin-nav-tab active" data-admin-tab="sop-manage">📋 SOP管理</button>
+                    <button class="admin-nav-tab" data-admin-tab="checklist-manage">✅ Checklist管理</button>
+                    <button class="admin-nav-tab" data-admin-tab="data-export">📤 数据导出</button>
+                </div>
+                <div class="admin-content">
+                    <div id="sop-manage-panel" class="admin-tab-panel">
+                        <div class="admin-toolbar">
+                            <button class="admin-btn primary" id="addSopBtn">➕ 新增SOP</button>
+                            <input type="text" id="sopSearchInput" placeholder="搜索SOP..." class="admin-search">
+                        </div>
+                        <div class="sop-list" id="sopList"></div>
+                    </div>
+                    <div id="checklist-manage-panel" class="admin-tab-panel" style="display: none;">
+                        <h3>开工清单</h3>
+                        <div class="checklist-edit-list" id="openChecklistEdit"></div>
+                        <button class="admin-btn secondary" id="addOpenChecklistItem">➕ 添加开工项</button>
+                        <h3 style="margin-top: 24px;">打烊清单</h3>
+                        <div class="checklist-edit-list" id="closeChecklistEdit"></div>
+                        <button class="admin-btn secondary" id="addCloseChecklistItem">➕ 添加打烊项</button>
+                        <button class="admin-btn primary" id="saveChecklistBtn" style="margin-top: 16px;">💾 保存Checklist</button>
+                    </div>
+                    <div id="data-export-panel" class="admin-tab-panel" style="display: none;">
+                        <h3>数据管理</h3>
+                        <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                            <p style="margin: 0 0 8px 0; color: #0369a1; font-weight: 500;">💡 数据保存说明</p>
+                            <p style="margin: 0; color: #0369a1; font-size: 14px;">所有编辑后的数据保存在浏览器本地存储中，清除浏览器数据会丢失修改。建议定期导出备份。</p>
+                        </div>
+                        <button class="admin-btn primary" id="exportDataBtn">📥 导出全部数据为JSON</button>
+                        <p style="margin-top: 12px; color: #64748b; font-size: 14px;">导出当前所有SOP和Checklist数据，用于备份或在其他设备上恢复。</p>
+                        <hr style="margin: 24px 0; border: none; border-top: 1px solid #e2e8f0;">
+                        <h4 style="margin: 0 0 12px 0;">数据重置</h4>
+                        <button class="admin-btn secondary" id="resetDataBtn" style="background-color: #fef2f2; color: #dc2626; border-color: #fecaca;">🔄 重置为原始数据</button>
+                        <p style="margin-top: 12px; color: #64748b; font-size: 14px;">清空所有修改，恢复到初始的SOP和Checklist数据。此操作不可撤销！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SOP编辑模态框 -->
+    <div id="sopEditModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="sopModalTitle">编辑SOP</h3>
+                <button class="modal-close" id="closeSopModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="display: none;">
+                    <label>标识key（唯一）</label>
+                    <input type="text" id="sopKey">
+                </div>
+                <div class="form-group">
+                    <label>标题</label>
+                    <input type="text" id="sopTitle">
+                </div>
+                <div class="form-group">
+                    <label>类型</label>
+                    <select id="sopType">
+                        <option value="cocktail">鸡尾酒</option>
+                        <option value="flow">流程</option>
+                        <option value="food">小吃</option>
+                    </select>
+                </div>
+                <div class="form-group" id="sopCategoryGroup">
+                    <label>分类</label>
+                    <input type="text" id="sopCategory" placeholder="如：长饮、短饮、招牌">
+                </div>
+                <div class="form-group" id="sopStrengthGroup">
+                    <label>酒精感</label>
+                    <select id="sopStrength">
+                        <option value="">无</option>
+                        <option value="轻">轻</option>
+                        <option value="中">中</option>
+                        <option value="烈">烈</option>
+                    </select>
+                </div>
+                <div class="form-group" id="sopFlavorsGroup">
+                    <label>风味（多个用逗号分隔）</label>
+                    <input type="text" id="sopFlavors" placeholder="如：清爽,果香,微苦">
+                </div>
+                <div class="form-group" id="sopTasteGroup" style="display: none;">
+                    <label>口味</label>
+                    <select id="sopTaste">
+                        <option value="咸香">咸香</option>
+                        <option value="甜口">甜口</option>
+                        <option value="酸辣">酸辣</option>
+                        <option value="原味">原味</option>
+                        <option value="香辣">香辣</option>
+                    </select>
+                </div>
+                <div class="form-group" id="sopMakingTimeGroup" style="display: none;">
+                    <label>制作时间</label>
+                    <input type="text" id="sopMakingTime" placeholder="如：快速、中等、慢">
+                </div>
+                <div class="form-group">
+                    <label>关键词（多个用逗号分隔）</label>
+                    <input type="text" id="sopKeywords" placeholder="如：莫吉托,mojito">
+                </div>
+                <div class="form-group">
+                    <label>完整内容（支持HTML）</label>
+                    <div id="contentEditor" contenteditable="true" class="content-editor" placeholder="输入内容，支持HTML格式"></div>
+                    <p style="margin-top: 8px; font-size: 12px; color: #888;">支持HTML标签：如 &lt;h3&gt;标题&lt;/h3&gt;、&lt;p&gt;段落&lt;/p&gt;、&lt;ol&gt;&lt;li&gt;步骤&lt;/li&gt;&lt;/ol&gt;、&lt;a href&gt;链接&lt;/a&gt;</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="admin-btn secondary" id="cancelSopEdit">取消</button>
+                <button class="admin-btn primary" id="saveSopBtn">💾 保存</button>
+            </div>
+        </div>
     </div>
 
     <!-- 全局底部搜索框 -->
     <div class="global-search-fixed">
         <div class="search-section">
-            <input type="text" id="searchInput" placeholder="输入关键词，如：到店、打烊、莫吉托" autocomplete="off" onkeypress="if(event.key==='Enter') handleSearch()">
-            <button id="searchBtn" onclick="handleSearch()">查询</button>
+            <input type="text" id="searchInput" placeholder="输入关键词寻找内容，如：到店、打烊、莫吉托" autocomplete="off">
         </div>
     </div>
 
