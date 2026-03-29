@@ -1,0 +1,9 @@
+name = "checklist-api"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+account_id = "0eb4f8217f664ca96ab5e70aa4d63ab6"
+
+[[kv_namespaces]]
+binding = "CHECKLIST_KV"
+id = "96d8d4b0afeb446e9d6bbe2529a14a5d"

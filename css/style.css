@@ -569,6 +569,46 @@ header h1 {
     color: #666;
 }
 
+.checklist-camera-btn {
+    padding: 6px;
+    background: transparent;
+    border: 1px solid #555;
+    border-radius: 6px;
+    color: #888;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.checklist-camera-btn:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: #D4AF37;
+    color: #D4AF37;
+}
+
+.checklist-camera-btn:active {
+    transform: scale(0.95);
+}
+
+.checklist-photo-preview {
+    width: 100%;
+    margin-top: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.checklist-photo-preview img {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
 .reset-btn {
     width: 100%;
     padding: 12px 16px;
@@ -604,6 +644,24 @@ header h1 {
 .completion-celebration p {
     color: rgba(255, 255, 255, 0.9);
     font-size: 15px;
+}
+
+.submit-checklist-btn {
+    margin-top: 16px;
+    padding: 12px 24px;
+    background: white;
+    color: #B8960C;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.submit-checklist-btn:hover {
+    background: #f0f0f0;
+    transform: scale(1.02);
 }
 
 /* ==================== SOP双模式样式 ==================== */

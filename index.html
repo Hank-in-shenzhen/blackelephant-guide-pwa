@@ -82,6 +82,8 @@
                     <button class="reset-btn" id="reset-btn">🔄 重置清单</button>
                 </div>
             </div>
+            <!-- 拍照用的隐藏文件输入框 -->
+            <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
         </div>
 
         <div id="admin-tab" class="tab-content hidden">
@@ -96,6 +98,7 @@
                 <div class="admin-nav">
                     <button class="admin-nav-tab active" data-admin-tab="sop-manage">📋 SOP管理</button>
                     <button class="admin-nav-tab" data-admin-tab="checklist-manage">✅ Checklist管理</button>
+                    <button class="admin-nav-tab" data-admin-tab="employee-progress">📊 员工进度</button>
                     <button class="admin-nav-tab" data-admin-tab="data-export">📤 数据导出</button>
                 </div>
                 <div class="admin-content">
@@ -127,6 +130,19 @@
                         <h4 style="margin: 0 0 12px 0;">数据重置</h4>
                         <button class="admin-btn secondary" id="resetDataBtn" style="background-color: #fef2f2; color: #dc2626; border-color: #fecaca;">🔄 重置为原始数据</button>
                         <p style="margin-top: 12px; color: #64748b; font-size: 14px;">清空所有修改，恢复到初始的SOP和Checklist数据。此操作不可撤销！</p>
+                    </div>
+                    <div id="employee-progress-panel" class="admin-tab-panel" style="display: none;">
+                        <div class="admin-toolbar">
+                            <select id="progress-date" class="admin-search" style="margin-right: 8px;">
+                                <option value="">选择日期</option>
+                            </select>
+                            <select id="progress-type" class="admin-search" style="margin-right: 8px;">
+                                <option value="open">开工清单</option>
+                                <option value="close">打烊清单</option>
+                            </select>
+                            <button class="admin-btn primary" id="refresh-progress-btn">🔄 刷新</button>
+                        </div>
+                        <div id="progress-list" style="margin-top: 16px;"></div>
                     </div>
                 </div>
             </div>

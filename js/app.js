@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showAllItems();
     initNavAndChecklist();
     initAdmin(); // 新增：初始化后台管理
+    initCamera(); // 新增：初始化拍照功能
 });
 
 // 加载指引数据 - 优先从localStorage读取，无数据时从JSON文件加载
@@ -492,8 +493,8 @@ function loadChecklistData() {
     if (savedDate !== today) {
         localStorage.setItem('checklistDate', today);
         checklistData = {
-            open: guideData['checklist-open'].items.map(item => ({ text: item, done: false })),
-            close: guideData['checklist-close'].items.map(item => ({ text: item, done: false }))
+            open: guideData['checklist-open'].items.map(item => ({ text: item, done: false, photo: null })),
+            close: guideData['checklist-close'].items.map(item => ({ text: item, done: false, photo: null }))
         };
         saveChecklistData();
     } else {
@@ -507,8 +508,8 @@ function loadChecklistData() {
         } else {
             // 如果localStorage没有数据，从guideData初始化
             checklistData = {
-                open: guideData['checklist-open'].items.map(item => ({ text: item, done: false })),
-                close: guideData['checklist-close'].items.map(item => ({ text: item, done: false }))
+                open: guideData['checklist-open'].items.map(item => ({ text: item, done: false, photo: null })),
+                close: guideData['checklist-close'].items.map(item => ({ text: item, done: false, photo: null }))
             };
             saveChecklistData();
         }
@@ -527,7 +528,7 @@ function resetChecklist() {
         ? guideData['checklist-open'].items
         : guideData['checklist-close'].items;
 
-    checklistData[currentChecklistType] = items.map(item => ({ text: item, done: false }));
+    checklistData[currentChecklistType] = items.map(item => ({ text: item, done: false, photo: null }));
     saveChecklistData();
     renderChecklist();
 }
@@ -561,6 +562,9 @@ function renderChecklist() {
             <div class="completion-celebration">
                 <h3>🎉 全部完成！</h3>
                 <p>${currentChecklistType === 'open' ? '开工准备就绪' : '打烊工作完成'}</p>
+                <button class="submit-checklist-btn" id="submit-checklist-btn">
+                    ${currentChecklistType === 'open' ? '✅ 确认开工完成' : '✅ 确认打烊完成'}
+                </button>
             </div>
         ` + renderChecklistItems(items);
     } else {
@@ -573,6 +577,16 @@ function renderChecklist() {
             toggleChecklistItem(index);
         });
     });
+
+    // 提交按钮点击
+    const submitBtn = document.getElementById('submit-checklist-btn');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+            if (confirm('确认提交？店长将收到你的完成通知。')) {
+                submitChecklist();
+            }
+        });
+    }
 }
 
 // 渲染checklist项目
@@ -581,6 +595,13 @@ function renderChecklistItems(items) {
         <li class="checklist-item ${item.done ? 'completed' : ''}" data-index="${index}">
             <div class="checklist-checkbox"></div>
             <span class="checklist-item-text">${item.text}</span>
+            <button class="checklist-camera-btn" data-index="${index}" title="拍照留档">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                </svg>
+            </button>
+            ${item.photo ? `<div class="checklist-photo-preview"><img src="${item.photo}" alt="拍照留档"></div>` : ''}
         </li>
     `).join('');
 }
@@ -591,6 +612,195 @@ function toggleChecklistItem(index) {
     saveChecklistData();
     renderChecklist();
 }
+
+// 拍照功能：记录当前要拍照的项索引
+let currentCameraTargetIndex = null;
+
+// Cloudflare Worker API 地址
+const API_BASE = 'https://checklist-api.tenhank1988.workers.dev';
+
+// 提交 checklist 到后端
+async function submitChecklist() {
+    const typeLabel = currentChecklistType === 'open' ? '开工' : '打烊';
+
+    // 获取员工名称（暂用 localStorage，之后改用账号系统）
+    let employeeId = localStorage.getItem('employeeName');
+    if (!employeeId) {
+        employeeId = prompt('请输入你的名字（用于店长识别）：');
+        if (!employeeId) return;
+        localStorage.setItem('employeeName', employeeId);
+    }
+
+    const items = checklistData[currentChecklistType].map(item => ({
+        text: item.text,
+        done: item.done,
+        photo: item.photo,
+    }));
+
+    const payload = {
+        employeeId,
+        date: new Date().toISOString().split('T')[0],
+        checklistType: currentChecklistType,
+        items,
+    };
+
+    try {
+        const res = await fetch(`${API_BASE}/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert(`${typeLabel}清单已提交给店长！`);
+        } else {
+            alert(`提交失败：${data.error}`);
+        }
+    } catch (err) {
+        alert(`提交失败：网络错误`);
+        console.error(err);
+    }
+}
+
+// 初始化拍照功能
+function initCamera() {
+    const cameraInput = document.getElementById('camera-input');
+
+    // 拍照按钮点击 → 触发文件选择
+    document.getElementById('checklist-items').addEventListener('click', (e) => {
+        const btn = e.target.closest('.checklist-camera-btn');
+        if (btn) {
+            e.stopPropagation(); // 阻止冒泡到父级li的toggle事件
+            currentCameraTargetIndex = parseInt(btn.dataset.index);
+            cameraInput.click();
+        }
+    });
+
+    // 文件选择后 → 保存照片
+    cameraInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && currentCameraTargetIndex !== null) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const base64Photo = ev.target.result;
+                checklistData[currentChecklistType][currentCameraTargetIndex].photo = base64Photo;
+                saveChecklistData();
+                renderChecklist();
+            };
+            reader.readAsDataURL(file);
+        }
+        // 清空input，允许重复选择同一张照片
+        cameraInput.value = '';
+        currentCameraTargetIndex = null;
+    });
+}
+
+// ==================== 员工进度（店长视图）====================
+let progressPollingTimer = null;
+
+function initEmployeeProgress() {
+    // 填充日期选项（今天+最近7天）
+    const dateSelect = document.getElementById('progress-date');
+    if (dateSelect.options.length <= 1) {
+        for (let i = 0; i <= 7; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const val = d.toISOString().split('T')[0];
+            const opt = document.createElement('option');
+            opt.value = val;
+            opt.textContent = val;
+            dateSelect.appendChild(opt);
+        }
+        dateSelect.value = new Date().toISOString().split('T')[0];
+    }
+
+    // 刷新按钮
+    document.getElementById('refresh-progress-btn').onclick = () => {
+        loadEmployeeProgress();
+    };
+
+    // 类型切换
+    document.getElementById('progress-type').onchange = () => {
+        loadEmployeeProgress();
+    };
+
+    loadEmployeeProgress();
+
+    // 每5秒轮询
+    stopProgressPolling();
+    progressPollingTimer = setInterval(loadEmployeeProgress, 5000);
+}
+
+function stopProgressPolling() {
+    if (progressPollingTimer) {
+        clearInterval(progressPollingTimer);
+        progressPollingTimer = null;
+    }
+}
+
+async function loadEmployeeProgress() {
+    const date = document.getElementById('progress-date').value;
+    const type = document.getElementById('progress-type').value;
+    if (!date) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/submissions?date=${date}&checklistType=${type}`);
+        const data = await res.json();
+        renderEmployeeSubmissions(data.submissions || [], type);
+    } catch (err) {
+        console.error('获取员工进度失败', err);
+    }
+}
+
+function renderEmployeeSubmissions(submissions, type) {
+    const container = document.getElementById('progress-list');
+    if (!container) return;
+
+    if (submissions.length === 0) {
+        container.innerHTML = '<p style="color:#888;text-align:center;margin-top:20px;">暂无提交记录</p>';
+        return;
+    }
+
+    const typeLabel = type === 'open' ? '开工' : '打烊';
+
+    container.innerHTML = submissions.map(sub => `
+        <div class="progress-card" style="background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:16px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <strong style="color:#D4AF37;font-size:16px;">${sub.employeeId}</strong>
+                <span style="color:#888;font-size:12px;">${new Date(sub.submittedAt).toLocaleString('zh-CN')}</span>
+            </div>
+            <div style="margin-bottom:8px;color:#e0e0e0;font-size:14px;font-weight:600;">${typeLabel}清单</div>
+            <ul style="list-style:none;padding:0;margin:0;">
+                ${sub.items.map((item, i) => `
+                    <li style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid #2a2a2a;font-size:14px;color:${item.done ? '#22c55e' : '#ef4444'};">
+                        <span>${item.done ? '✅' : '⬜'}</span>
+                        <span style="${item.done ? '' : 'opacity:0.5'}">${item.text}</span>
+                        ${item.photo ? `<img src="${item.photo}" data-photo="${item.photo}" class="progress-photo" style="width:60px;height:60px;object-fit:cover;border-radius:6px;margin-left:8px;cursor:pointer;">` : ''}
+                    </li>
+                `).join('')}
+            </ul>
+        </div>
+    `).join('');
+
+    // 事件委托：点击照片放大
+    container.querySelectorAll('.progress-photo').forEach(img => {
+        img.addEventListener('click', () => showPhotoModal(img.dataset.photo));
+    });
+}
+
+// 图片弹窗
+function showPhotoModal(src) {
+    const existing = document.getElementById('photo-modal');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'photo-modal';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+    overlay.innerHTML = `<img src="${src}" style="max-width:90vw;max-height:90vh;border-radius:8px;">`;
+    overlay.onclick = () => overlay.remove();
+    document.body.appendChild(overlay);
+}
+
 
 // 全局卡片点击委托，确保所有卡片点击都能跳转到详情
 document.addEventListener('click', (e) => {
@@ -664,9 +874,13 @@ function initAdmin() {
 
             // 初始化对应面板
             if (adminTab === 'sop-manage') {
+                stopProgressPolling();
                 renderAdminSopList();
             } else if (adminTab === 'checklist-manage') {
+                stopProgressPolling();
                 renderChecklistEditPanel();
+            } else if (adminTab === 'employee-progress') {
+                initEmployeeProgress();
             }
         });
     });
