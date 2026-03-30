@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     showAllItems();
     initNavAndChecklist();
     initAdmin(); // 新增：初始化后台管理
-    initCamera(); // 新增：初始化拍照功能
 });
 
 // 加载指引数据 - 优先从localStorage读取，无数据时从JSON文件加载
@@ -46,17 +45,17 @@ async function loadGuideData() {
 // 初始化事件监听
 function initEventListeners() {
     const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
     const chips = document.querySelectorAll('.chip');
 
-    // 点击搜索按钮搜索
-    searchBtn.addEventListener('click', () => {
-        handleSearch();
+    // 输入搜索（防抖）
+    searchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(handleSearch, 300);
     });
 
-    // 回车搜索
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
+            clearTimeout(debounceTimer);
             handleSearch();
         }
     });
@@ -115,6 +114,7 @@ function showAllItems() {
                 <div class="card-footer">
                     <span class="category-tag">${item.category || item.type}</span>
                     ${item.makingTime ? `<span class="time-tag">${item.makingTime}</span>` : ''}
+                    <button class="view-btn">查看详情</button>
                 </div>
             </div>
         `;
@@ -217,6 +217,7 @@ function handleSearch() {
                     <div class="card-footer">
                         <span class="category-tag">${item.category || item.type}</span>
                         ${item.makingTime ? `<span class="time-tag">${item.makingTime}</span>` : ''}
+                        <button class="view-btn">查看详情</button>
                     </div>
                 </div>
             `;
@@ -233,9 +234,6 @@ function handleSearch() {
             });
         });
     }
-
-    // 搜索完成后失焦
-    document.getElementById('searchInput').blur();
 }
 
 // 关键词匹配（旧版保留）
@@ -483,16 +481,6 @@ function initNavAndChecklist() {
         }
     });
 
-    // 提交按钮（初始化时绑定一次，不在renderChecklist里重复绑定）
-    const submitBtn = document.getElementById('submit-checklist-btn');
-    if (submitBtn) {
-        submitBtn.addEventListener('click', () => {
-            if (confirm('确认提交？店长将收到你的完成通知。')) {
-                submitChecklist();
-            }
-        });
-    }
-
     // 初始化checklist数据
     loadChecklistData();
 }
@@ -506,8 +494,8 @@ function loadChecklistData() {
     if (savedDate !== today) {
         localStorage.setItem('checklistDate', today);
         checklistData = {
-            open: guideData['checklist-open'].items.map(item => ({ text: item, done: false, photo: null })),
-            close: guideData['checklist-close'].items.map(item => ({ text: item, done: false, photo: null }))
+            open: guideData['checklist-open'].items.map(item => ({ text: item, done: false })),
+            close: guideData['checklist-close'].items.map(item => ({ text: item, done: false }))
         };
         saveChecklistData();
     } else {
@@ -521,8 +509,8 @@ function loadChecklistData() {
         } else {
             // 如果localStorage没有数据，从guideData初始化
             checklistData = {
-                open: guideData['checklist-open'].items.map(item => ({ text: item, done: false, photo: null })),
-                close: guideData['checklist-close'].items.map(item => ({ text: item, done: false, photo: null }))
+                open: guideData['checklist-open'].items.map(item => ({ text: item, done: false })),
+                close: guideData['checklist-close'].items.map(item => ({ text: item, done: false }))
             };
             saveChecklistData();
         }
@@ -541,7 +529,7 @@ function resetChecklist() {
         ? guideData['checklist-open'].items
         : guideData['checklist-close'].items;
 
-    checklistData[currentChecklistType] = items.map(item => ({ text: item, done: false, photo: null }));
+    checklistData[currentChecklistType] = items.map(item => ({ text: item, done: false }));
     saveChecklistData();
     renderChecklist();
 }
@@ -570,292 +558,41 @@ function renderChecklist() {
     const checklistItemsEl = document.getElementById('checklist-items');
 
     // 检查是否全部完成
-    checklistItemsEl.innerHTML = renderChecklistItems(items);
-
-    // 底部提交按钮显示/隐藏 + 更新文字
-    const submitBtn = document.getElementById('submit-checklist-btn');
     if (doneCount === totalCount && totalCount > 0) {
-        submitBtn.style.display = 'block';
-        submitBtn.textContent = currentChecklistType === 'open' ? '✅ 确认开工完成' : '✅ 确认打烊完成';
+        checklistItemsEl.innerHTML = `
+            <div class="completion-celebration">
+                <h3>🎉 全部完成！</h3>
+                <p>${currentChecklistType === 'open' ? '开工准备就绪' : '打烊工作完成'}</p>
+            </div>
+        ` + renderChecklistItems(items);
     } else {
-        submitBtn.style.display = 'none';
+        checklistItemsEl.innerHTML = renderChecklistItems(items);
     }
+
+    // 绑定点击事件
+    document.querySelectorAll('.checklist-item').forEach((item, index) => {
+        item.addEventListener('click', () => {
+            toggleChecklistItem(index);
+        });
+    });
 }
 
 // 渲染checklist项目
 function renderChecklistItems(items) {
-    return items.map((item, index) => {
-        const isCompleted = item.done;
-        const needsPhoto = index < 3; // 前3项需要拍照留档
-
-        // 按钮状态：已完成显示✓，未完成前3项显示相机，其他显示圆圈
-        let btnIcon = '';
-        let btnClass = 'checklist-action-btn ';
-        if (isCompleted) {
-            btnIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-            btnClass += 'done';
-        } else if (needsPhoto) {
-            btnIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
-            btnClass += 'photo';
-        } else {
-            btnIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>';
-            btnClass += 'check';
-        }
-
-        let html = '<li class="checklist-item' + (isCompleted ? ' completed' : '') + '" data-index="' + index + '">';
-        html += '<span class="checklist-item-text">' + item.text + '</span>';
-        html += '<button class="' + btnClass + '" data-index="' + index + '">' + btnIcon + '</button>';
-        html += '</li>';
-        if (item.photo) {
-            html += '<li class="checklist-photo-row"><img src="' + item.photo + '" alt="拍照留档"></li>';
-        }
-        return html;
-    }).join('');
+    return items.map((item, index) => `
+        <li class="checklist-item ${item.done ? 'completed' : ''}" data-index="${index}">
+            <div class="checklist-checkbox"></div>
+            <span class="checklist-item-text">${item.text}</span>
+        </li>
+    `).join('');
 }
 
 // 切换checklist项目状态
 function toggleChecklistItem(index) {
-    const item = checklistData[currentChecklistType][index];
-
-    // 前3项且未完成：打开相机
-    if (index < 3 && !item.done) {
-        currentCameraTargetIndex = index;
-        document.getElementById('camera-input').click();
-        return;
-    }
-
-    // 其他项或已完成项：直接切换状态
-    item.done = !item.done;
+    checklistData[currentChecklistType][index].done = !checklistData[currentChecklistType][index].done;
     saveChecklistData();
     renderChecklist();
 }
-
-// 拍照功能：记录当前要拍照的项索引和类型
-let currentCameraTargetIndex = null;
-let currentCameraTargetType = null;
-
-// 压缩照片
-function compressPhoto(dataUrl, maxWidth, quality, callback) {
-    const img = new Image();
-    img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let w = img.width;
-        let h = img.height;
-        if (w > maxWidth) {
-            h = (h * maxWidth) / w;
-            w = maxWidth;
-        }
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
-        callback(canvas.toDataURL('image/jpeg', quality));
-    };
-    img.src = dataUrl;
-}
-
-// 腾讯云 SCF API 地址
-const API_BASE = 'https://1414474725-emefydncvx.ap-guangzhou.tencentscf.com';
-
-// 提交 checklist 到后端
-async function submitChecklist() {
-    const typeLabel = currentChecklistType === 'open' ? '开工' : '打烊';
-
-    // 获取员工名称（暂用 localStorage，之后改用账号系统）
-    let employeeId = localStorage.getItem('employeeName');
-    if (!employeeId) {
-        employeeId = prompt('请输入你的名字（用于店长识别）：');
-        if (!employeeId) return;
-        localStorage.setItem('employeeName', employeeId);
-    }
-
-    const items = checklistData[currentChecklistType].map(item => ({
-        text: item.text,
-        done: item.done,
-        photo: item.photo,
-    }));
-
-    const payload = {
-        employeeId,
-        date: new Date().toISOString().split('T')[0],
-        checklistType: currentChecklistType,
-        items,
-    };
-
-    try {
-        const res = await fetch(`${API_BASE}/submit`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        if (data.success) {
-            alert(`${typeLabel}清单已提交给店长！`);
-        } else {
-            alert(`提交失败：${data.error}`);
-        }
-    } catch (err) {
-        alert(`提交失败：网络错误`);
-        console.error(err);
-    }
-}
-
-// 初始化拍照功能
-function initCamera() {
-    const cameraInput = document.getElementById('camera-input');
-
-    // 按钮点击 → 统一由这个处理
-    document.getElementById('checklist-items').addEventListener('click', (e) => {
-        const btn = e.target.closest('.checklist-action-btn');
-        if (!btn) return;
-
-        const index = parseInt(btn.dataset.index);
-        const item = checklistData[currentChecklistType][index];
-
-        // 前3项且未完成 → 打开相机
-        if (index < 3 && !item.done) {
-            e.stopPropagation();
-            currentCameraTargetIndex = index;
-            currentCameraTargetType = currentChecklistType; // 记住当前是开工还是打烊
-            cameraInput.click();
-            return;
-        }
-
-        // 其他情况：切换完成状态
-        e.stopPropagation();
-        toggleChecklistItem(index);
-    });
-
-    // 文件选择后 → 保存照片并自动勾选
-    cameraInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file && currentCameraTargetIndex !== null && currentCameraTargetType !== null) {
-            const idx = currentCameraTargetIndex;
-            const type = currentCameraTargetType;
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const base64Photo = ev.target.result;
-                compressPhoto(base64Photo, 400, 0.6, (compressed) => {
-                    checklistData[type][idx].photo = compressed;
-                    checklistData[type][idx].done = true; // 自动勾选
-                    saveChecklistData();
-                    renderChecklist();
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-        cameraInput.value = '';
-        currentCameraTargetIndex = null;
-        currentCameraTargetType = null;
-    });
-}
-
-// ==================== 员工进度（店长视图）====================
-let progressPollingTimer = null;
-
-function initEmployeeProgress() {
-    // 填充日期选项（今天+最近7天）
-    const dateSelect = document.getElementById('progress-date');
-    if (dateSelect.options.length <= 1) {
-        for (let i = 0; i <= 7; i++) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const val = d.toISOString().split('T')[0];
-            const opt = document.createElement('option');
-            opt.value = val;
-            opt.textContent = val;
-            dateSelect.appendChild(opt);
-        }
-        dateSelect.value = new Date().toISOString().split('T')[0];
-    }
-
-    // 刷新按钮
-    document.getElementById('refresh-progress-btn').onclick = () => {
-        loadEmployeeProgress();
-    };
-
-    // 类型切换
-    document.getElementById('progress-type').onchange = () => {
-        loadEmployeeProgress();
-    };
-
-    loadEmployeeProgress();
-
-    // 每5秒轮询
-    stopProgressPolling();
-    progressPollingTimer = setInterval(loadEmployeeProgress, 5000);
-}
-
-function stopProgressPolling() {
-    if (progressPollingTimer) {
-        clearInterval(progressPollingTimer);
-        progressPollingTimer = null;
-    }
-}
-
-async function loadEmployeeProgress() {
-    const date = document.getElementById('progress-date').value;
-    const type = document.getElementById('progress-type').value;
-    if (!date) return;
-
-    try {
-        const res = await fetch(`${API_BASE}/submissions?date=${date}&checklistType=${type}`);
-        const data = await res.json();
-        renderEmployeeSubmissions(data.submissions || [], type);
-    } catch (err) {
-        console.error('获取员工进度失败', err);
-    }
-}
-
-function renderEmployeeSubmissions(submissions, type) {
-    const container = document.getElementById('progress-list');
-    if (!container) return;
-
-    if (submissions.length === 0) {
-        container.innerHTML = '<p style="color:#888;text-align:center;margin-top:20px;">暂无提交记录</p>';
-        return;
-    }
-
-    const typeLabel = type === 'open' ? '开工' : '打烊';
-
-    container.innerHTML = submissions.map(sub => `
-        <div class="progress-card" style="background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:16px;margin-bottom:12px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                <strong style="color:#D4AF37;font-size:16px;">${sub.employeeId}</strong>
-                <span style="color:#888;font-size:12px;">${new Date(sub.submittedAt).toLocaleString('zh-CN')}</span>
-            </div>
-            <div style="margin-bottom:8px;color:#e0e0e0;font-size:14px;font-weight:600;">${typeLabel}清单</div>
-            <ul style="list-style:none;padding:0;margin:0;">
-                ${sub.items.map((item, i) => `
-                    <li style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid #2a2a2a;font-size:14px;color:${item.done ? '#22c55e' : '#ef4444'};">
-                        <span>${item.done ? '✅' : '⬜'}</span>
-                        <span style="${item.done ? '' : 'opacity:0.5'}">${item.text}</span>
-                        ${item.photo ? `<img src="${API_BASE}/photo/${item.photo}" data-photo="${API_BASE}/photo/${item.photo}" class="progress-photo" style="width:60px;height:60px;object-fit:cover;border-radius:6px;margin-left:8px;cursor:pointer;">` : ''}
-                    </li>
-                `).join('')}
-            </ul>
-        </div>
-    `).join('');
-
-    // 事件委托：点击照片放大
-    container.querySelectorAll('.progress-photo').forEach(img => {
-        img.addEventListener('click', () => showPhotoModal(img.dataset.photo));
-    });
-}
-
-// 图片弹窗
-function showPhotoModal(src) {
-    const existing = document.getElementById('photo-modal');
-    if (existing) existing.remove();
-
-    const overlay = document.createElement('div');
-    overlay.id = 'photo-modal';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;';
-    overlay.innerHTML = `<img src="${src}" style="max-width:90vw;max-height:90vh;border-radius:8px;">`;
-    overlay.onclick = () => overlay.remove();
-    document.body.appendChild(overlay);
-}
-
 
 // 全局卡片点击委托，确保所有卡片点击都能跳转到详情
 document.addEventListener('click', (e) => {
@@ -929,13 +666,9 @@ function initAdmin() {
 
             // 初始化对应面板
             if (adminTab === 'sop-manage') {
-                stopProgressPolling();
                 renderAdminSopList();
             } else if (adminTab === 'checklist-manage') {
-                stopProgressPolling();
                 renderChecklistEditPanel();
-            } else if (adminTab === 'employee-progress') {
-                initEmployeeProgress();
             }
         });
     });
@@ -948,6 +681,7 @@ function initAdmin() {
     document.getElementById('closeSopModal').addEventListener('click', closeSopModal);
     document.getElementById('cancelSopEdit').addEventListener('click', closeSopModal);
     document.getElementById('saveSopBtn').addEventListener('click', saveSop);
+    document.getElementById('addStepBtn').addEventListener('click', addStep);
 
     document.getElementById('sopType').addEventListener('change', (e) => {
         const type = e.target.value;
@@ -1078,8 +812,8 @@ function openSopEditModal(sopKey) {
     document.getElementById('sopMakingTime').value = '';
     document.getElementById('sopKeywords').value = '';
 
-    // 初始化内容编辑器
-    document.getElementById('contentEditor').innerHTML = '';
+    // 初始化步骤编辑器
+    initStepsEditor([]);
 
     if (sopKey) {
         modalTitle.textContent = '编辑SOP';
@@ -1098,8 +832,9 @@ function openSopEditModal(sopKey) {
         document.getElementById('sopMakingTime').value = item.makingTime || '';
         document.getElementById('sopKeywords').value = item.keywords ? item.keywords.join(',') : '';
 
-        // 直接加载原始HTML内容，保留视频链接和格式
-        document.getElementById('contentEditor').innerHTML = item.content || '';
+        // 解析HTML内容为步骤
+        const steps = parseHtmlToSteps(item.content || '');
+        initStepsEditor(steps);
     } else {
         modalTitle.textContent = '新增SOP';
     }
@@ -1134,6 +869,123 @@ function openSopEditModal(sopKey) {
 
     modal.style.display = 'flex';
     document.getElementById('sopKey').focus();
+    updateStepsPreview();
+}
+
+// 初始化步骤编辑器
+function initStepsEditor(steps) {
+    const container = document.getElementById('stepsEditor');
+    container.innerHTML = '';
+
+    if (steps.length === 0) {
+        steps = [''];
+    }
+
+    steps.forEach((step, index) => {
+        addStepField(step, index);
+    });
+}
+
+// 添加单个步骤字段
+function addStepField(stepText = '', index = null) {
+    const container = document.getElementById('stepsEditor');
+    const stepCount = container.querySelectorAll('.step-item').length;
+    const num = stepCount + 1;
+
+    const div = document.createElement('div');
+    div.className = 'step-item';
+    div.innerHTML = `
+        <span class="step-num">${num}</span>
+        <input type="text" class="step-input" placeholder="输入第${num}步..." value="${escapeHtml(stepText)}">
+        ${num > 1 ? '<button type="button" class="step-delete-btn" onclick="deleteStep(this)">删除</button>' : ''}
+    `;
+
+    // 添加实时预览更新事件
+    const input = div.querySelector('.step-input');
+    input.addEventListener('input', updateStepsPreview);
+
+    container.appendChild(div);
+}
+
+// 添加新步骤
+function addStep() {
+    addStepField('');
+    updateStepsPreview();
+}
+
+// 删除步骤
+function deleteStep(btn) {
+    btn.parentElement.remove();
+    renumberSteps();
+    updateStepsPreview();
+}
+
+// 重新编号
+function renumberSteps() {
+    const items = document.querySelectorAll('.step-item');
+    items.forEach((item, index) => {
+        item.querySelector('.step-num').textContent = index + 1;
+        item.querySelector('.step-input').placeholder = `输入第${index + 1}步...`;
+    });
+}
+
+// 更新预览
+function updateStepsPreview() {
+    const steps = getStepsFromEditor();
+    const preview = document.getElementById('stepsPreview');
+
+    if (steps.length === 0 || (steps.length === 1 && steps[0] === '')) {
+        preview.innerHTML = '<p style="color: #94a3b8; font-size: 14px;">暂无内容</p>';
+        return;
+    }
+
+    let html = '<ol>';
+    steps.filter(s => s.trim()).forEach(step => {
+        html += `<li>${escapeHtml(step)}</li>`;
+    });
+    html += '</ol>';
+    preview.innerHTML = html;
+}
+
+// 从编辑器获取步骤
+function getStepsFromEditor() {
+    const inputs = document.querySelectorAll('.step-input');
+    return Array.from(inputs).map(input => input.value);
+}
+
+// 解析HTML内容为步骤数组
+function parseHtmlToSteps(html) {
+    if (!html) return [''];
+
+    // 提取所有li标签内容
+    const liRegex = /<li[^>]*>([\s\S]*?)<\/li>/gi;
+    const steps = [];
+    let match;
+
+    while ((match = liRegex.exec(html)) !== null) {
+        // 移除li内的HTML标签，保留纯文本
+        let text = match[1].replace(/<[^>]+>/g, '').trim();
+        steps.push(text);
+    }
+
+    // 如果没有找到li标签，尝试用p标签
+    if (steps.length === 0) {
+        const pRegex = /<p[^>]*>([\s\S]*?)<\/p>/gi;
+        while ((match = pRegex.exec(html)) !== null) {
+            let text = match[1].replace(/<[^>]+>/g, '').trim();
+            if (text) steps.push(text);
+        }
+    }
+
+    // 如果还是没有，尝试直接用段落分割
+    if (steps.length === 0) {
+        const text = html.replace(/<[^>]+>/g, '').trim();
+        if (text) {
+            steps.push(text);
+        }
+    }
+
+    return steps.length > 0 ? steps : [''];
 }
 
 // HTML转义
@@ -1160,16 +1012,17 @@ function saveSop() {
     const makingTime = document.getElementById('sopMakingTime').value.trim();
     const keywordsStr = document.getElementById('sopKeywords').value.trim();
 
-    // 从富文本编辑器获取内容
-    const content = document.getElementById('contentEditor').innerHTML.trim();
+    // 从步骤编辑器获取内容并转换为HTML
+    const steps = getStepsFromEditor().filter(s => s.trim());
+    const content = steps.length > 0 ? `<ol>${steps.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>` : '';
 
     if (!title) {
         alert('请填写标题');
         return;
     }
 
-    if (!content) {
-        alert('请填写内容');
+    if (steps.length === 0) {
+        alert('请至少填写一个步骤');
         return;
     }
 
