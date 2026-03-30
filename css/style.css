@@ -377,11 +377,12 @@ header h1 {
     }
 
     .search-section {
-        flex-direction: column;
+        flex-direction: row;
     }
 
     #searchBtn {
-        width: 100%;
+        width: auto;
+        flex-shrink: 0;
     }
 }
 
