@@ -655,7 +655,7 @@ function compressPhoto(dataUrl, maxWidth, quality, callback) {
 }
 
 // 腾讯云 SCF API 地址
-const API_BASE = 'https://1414474725-emefydncvx.ap-guangzhou.tencentscf.com';
+const API_BASE = 'https://1414474725-8a4g1sici9.ap-guangzhou.tencentscf.com';
 
 // 提交 checklist 到后端
 async function submitChecklist() {
