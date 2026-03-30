@@ -532,30 +532,6 @@ header h1 {
     border-color: #D4AF37;
 }
 
-.checklist-checkbox {
-    width: 24px;
-    height: 24px;
-    border: 2px solid #555;
-    border-radius: 6px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.checklist-item.completed .checklist-checkbox {
-    background-color: #D4AF37;
-    border-color: #D4AF37;
-}
-
-.checklist-item.completed .checklist-checkbox::after {
-    content: "✓";
-    color: #0a0a0a;
-    font-size: 14px;
-    font-weight: bold;
-}
-
 .checklist-item-text {
     flex: 1;
     font-size: 15px;
@@ -569,11 +545,12 @@ header h1 {
     color: #666;
 }
 
-.checklist-camera-btn {
-    padding: 6px;
+.checklist-action-btn {
+    width: 44px;
+    height: 44px;
     background: transparent;
-    border: 1px solid #555;
-    border-radius: 6px;
+    border: 2px solid #555;
+    border-radius: 50%;
     color: #888;
     cursor: pointer;
     flex-shrink: 0;
@@ -583,28 +560,54 @@ header h1 {
     transition: all 0.2s ease;
 }
 
-.checklist-camera-btn:hover {
+.checklist-action-btn:hover {
+    border-color: #D4AF37;
+    color: #D4AF37;
     background: rgba(212, 175, 55, 0.1);
+}
+
+.checklist-action-btn:active {
+    transform: scale(0.9);
+}
+
+/* 前3项需要拍照 - 金色相机按钮 */
+.checklist-action-btn.photo {
     border-color: #D4AF37;
     color: #D4AF37;
 }
 
-.checklist-camera-btn:active {
-    transform: scale(0.95);
+.checklist-action-btn.photo:hover {
+    background: rgba(212, 175, 55, 0.2);
 }
 
-.checklist-photo-preview {
-    width: 100%;
-    margin-top: 8px;
-    border-radius: 8px;
-    overflow: hidden;
+/* 普通勾选 - 灰色圆圈 */
+.checklist-action-btn.check {
+    border-color: #666;
+    color: #666;
 }
 
-.checklist-photo-preview img {
-    width: 100%;
-    max-width: 200px;
-    height: auto;
-    display: block;
+/* 已完成 - 金色实心 */
+.checklist-action-btn.done {
+    background-color: #D4AF37;
+    border-color: #D4AF37;
+    color: #0a0a0a;
+}
+
+.checklist-action-btn.done:hover {
+    background-color: #B8960C;
+}
+
+.checklist-photo-row {
+    list-style: none;
+    padding: 8px 12px;
+    margin-top: -4px;
+    margin-bottom: 8px;
+}
+
+.checklist-photo-row img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
     border-radius: 8px;
     border: 1px solid #333;
 }
@@ -625,6 +628,43 @@ header h1 {
 .reset-btn:hover {
     background-color: rgba(212, 175, 55, 0.2);
     border-color: #D4AF37;
+}
+
+.checklist-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.checklist-footer .submit-checklist-btn {
+    width: 100%;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.checklist-footer .submit-checklist-btn:hover {
+    transform: scale(1.02);
+    background: linear-gradient(135deg, #e0c04a 0%, #c9a814 100%);
+}
+
+.checklist-footer .reset-btn {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #888;
+    border: 1px solid #333;
+}
+
+.checklist-footer .reset-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #ef4444;
+    color: #ef4444;
 }
 
 .completion-celebration {
@@ -880,6 +920,28 @@ header h1 {
     max-width: 600px;
     margin: 0 auto;
     margin-bottom: 0;
+    display: flex;
+    gap: 8px;
+}
+
+.global-search-fixed #searchInput {
+    flex: 1;
+}
+
+.global-search-fixed #searchBtn {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.global-search-fixed #searchBtn:active {
+    transform: scale(0.95);
 }
 
 @media (max-width: 480px) {

@@ -4,13 +4,13 @@
 
 ## 现状速览
 
-**当前坐标：** 鸡尾酒SOP查询、Checklist、双模式切换均可用。搜索和筛选正常工作。小吃筛选数据只有美式薯条一个，snack/main/signature-food 分类无内容。
+**当前坐标：** Checklist按钮已合并（单一按钮，前3项拍照+自动勾选，其他直接勾选），搜索已加确认按钮。照片上传 null 问题待修（R2方案进行中）。
 
-**积木状态：** 稳固 — 鸡尾酒SOP、到店/打烊流程、Checklist、双模式切换。还没拆 — app.js 是单文件（600+行），模块化未做。
+**积木状态：** 稳固 — 按钮合并、搜索确认。 待修 — 照片存储（R2）、R2 Worker 绑定配置。
 
-**下一步：** 补充小吃SOP数据，或根据需求实现 quiz 小测验功能。
+**下一步：** 1）Cloudflare Dashboard 创建 R2 bucket 并绑定到 Worker 2）重新部署 Worker 3）测试完整流程
 
-**安全快照：** Git `0ae144e`（修复脏数据+富文本编辑），数据默认从 guide-data.json 加载，用户修改后存 localStorage。
+**安全快照：** Git 未推送（待测试），Cloudflare Workers `checklist-api.tenhank1988.workers.dev`
 
 ---
 

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "buildCommand": null,
+  "installCommand": null,
+  "framework": null,
+  "routes": [
+    { "src": "/api/submit", "dest": "/api/submit.js" },
+    { "src": "/api/submissions", "dest": "/api/submissions.js" },
+    { "src": "/api/photo/(.*)", "dest": "/api/photo/[...path].js" }
+  ]
+}

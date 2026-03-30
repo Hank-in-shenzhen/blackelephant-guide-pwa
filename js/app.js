@@ -46,17 +46,17 @@ async function loadGuideData() {
 // 初始化事件监听
 function initEventListeners() {
     const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
     const chips = document.querySelectorAll('.chip');
 
-    // 输入搜索（防抖）
-    searchInput.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(handleSearch, 300);
+    // 点击搜索按钮搜索
+    searchBtn.addEventListener('click', () => {
+        handleSearch();
     });
 
+    // 回车搜索
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            clearTimeout(debounceTimer);
             handleSearch();
         }
     });
@@ -233,6 +233,9 @@ function handleSearch() {
             });
         });
     }
+
+    // 搜索完成后失焦
+    document.getElementById('searchInput').blur();
 }
 
 // 关键词匹配（旧版保留）
@@ -480,6 +483,16 @@ function initNavAndChecklist() {
         }
     });
 
+    // 提交按钮（初始化时绑定一次，不在renderChecklist里重复绑定）
+    const submitBtn = document.getElementById('submit-checklist-btn');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+            if (confirm('确认提交？店长将收到你的完成通知。')) {
+                submitChecklist();
+            }
+        });
+    }
+
     // 初始化checklist数据
     loadChecklistData();
 }
@@ -557,67 +570,92 @@ function renderChecklist() {
     const checklistItemsEl = document.getElementById('checklist-items');
 
     // 检查是否全部完成
-    if (doneCount === totalCount && totalCount > 0) {
-        checklistItemsEl.innerHTML = `
-            <div class="completion-celebration">
-                <h3>🎉 全部完成！</h3>
-                <p>${currentChecklistType === 'open' ? '开工准备就绪' : '打烊工作完成'}</p>
-                <button class="submit-checklist-btn" id="submit-checklist-btn">
-                    ${currentChecklistType === 'open' ? '✅ 确认开工完成' : '✅ 确认打烊完成'}
-                </button>
-            </div>
-        ` + renderChecklistItems(items);
-    } else {
-        checklistItemsEl.innerHTML = renderChecklistItems(items);
-    }
+    checklistItemsEl.innerHTML = renderChecklistItems(items);
 
-    // 绑定点击事件
-    document.querySelectorAll('.checklist-item').forEach((item, index) => {
-        item.addEventListener('click', () => {
-            toggleChecklistItem(index);
-        });
-    });
-
-    // 提交按钮点击
+    // 底部提交按钮显示/隐藏 + 更新文字
     const submitBtn = document.getElementById('submit-checklist-btn');
-    if (submitBtn) {
-        submitBtn.addEventListener('click', () => {
-            if (confirm('确认提交？店长将收到你的完成通知。')) {
-                submitChecklist();
-            }
-        });
+    if (doneCount === totalCount && totalCount > 0) {
+        submitBtn.style.display = 'block';
+        submitBtn.textContent = currentChecklistType === 'open' ? '✅ 确认开工完成' : '✅ 确认打烊完成';
+    } else {
+        submitBtn.style.display = 'none';
     }
 }
 
 // 渲染checklist项目
 function renderChecklistItems(items) {
-    return items.map((item, index) => `
-        <li class="checklist-item ${item.done ? 'completed' : ''}" data-index="${index}">
-            <div class="checklist-checkbox"></div>
-            <span class="checklist-item-text">${item.text}</span>
-            <button class="checklist-camera-btn" data-index="${index}" title="拍照留档">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                    <circle cx="12" cy="13" r="4"/>
-                </svg>
-            </button>
-            ${item.photo ? `<div class="checklist-photo-preview"><img src="${item.photo}" alt="拍照留档"></div>` : ''}
-        </li>
-    `).join('');
+    return items.map((item, index) => {
+        const isCompleted = item.done;
+        const needsPhoto = index < 3; // 前3项需要拍照留档
+
+        // 按钮状态：已完成显示✓，未完成前3项显示相机，其他显示圆圈
+        let btnIcon = '';
+        let btnClass = 'checklist-action-btn ';
+        if (isCompleted) {
+            btnIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+            btnClass += 'done';
+        } else if (needsPhoto) {
+            btnIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+            btnClass += 'photo';
+        } else {
+            btnIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>';
+            btnClass += 'check';
+        }
+
+        let html = '<li class="checklist-item' + (isCompleted ? ' completed' : '') + '" data-index="' + index + '">';
+        html += '<span class="checklist-item-text">' + item.text + '</span>';
+        html += '<button class="' + btnClass + '" data-index="' + index + '">' + btnIcon + '</button>';
+        html += '</li>';
+        if (item.photo) {
+            html += '<li class="checklist-photo-row"><img src="' + item.photo + '" alt="拍照留档"></li>';
+        }
+        return html;
+    }).join('');
 }
 
 // 切换checklist项目状态
 function toggleChecklistItem(index) {
-    checklistData[currentChecklistType][index].done = !checklistData[currentChecklistType][index].done;
+    const item = checklistData[currentChecklistType][index];
+
+    // 前3项且未完成：打开相机
+    if (index < 3 && !item.done) {
+        currentCameraTargetIndex = index;
+        document.getElementById('camera-input').click();
+        return;
+    }
+
+    // 其他项或已完成项：直接切换状态
+    item.done = !item.done;
     saveChecklistData();
     renderChecklist();
 }
 
-// 拍照功能：记录当前要拍照的项索引
+// 拍照功能：记录当前要拍照的项索引和类型
 let currentCameraTargetIndex = null;
+let currentCameraTargetType = null;
+
+// 压缩照片
+function compressPhoto(dataUrl, maxWidth, quality, callback) {
+    const img = new Image();
+    img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width;
+        let h = img.height;
+        if (w > maxWidth) {
+            h = (h * maxWidth) / w;
+            w = maxWidth;
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        callback(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = dataUrl;
+}
 
 // Cloudflare Worker API 地址
-const API_BASE = 'https://checklist-api.tenhank1988.workers.dev';
+const API_BASE = 'https://blackelephant-guide-pwa.vercel.app';
 
 // 提交 checklist 到后端
 async function submitChecklist() {
@@ -666,32 +704,49 @@ async function submitChecklist() {
 function initCamera() {
     const cameraInput = document.getElementById('camera-input');
 
-    // 拍照按钮点击 → 触发文件选择
+    // 按钮点击 → 统一由这个处理
     document.getElementById('checklist-items').addEventListener('click', (e) => {
-        const btn = e.target.closest('.checklist-camera-btn');
-        if (btn) {
-            e.stopPropagation(); // 阻止冒泡到父级li的toggle事件
-            currentCameraTargetIndex = parseInt(btn.dataset.index);
+        const btn = e.target.closest('.checklist-action-btn');
+        if (!btn) return;
+
+        const index = parseInt(btn.dataset.index);
+        const item = checklistData[currentChecklistType][index];
+
+        // 前3项且未完成 → 打开相机
+        if (index < 3 && !item.done) {
+            e.stopPropagation();
+            currentCameraTargetIndex = index;
+            currentCameraTargetType = currentChecklistType; // 记住当前是开工还是打烊
             cameraInput.click();
+            return;
         }
+
+        // 其他情况：切换完成状态
+        e.stopPropagation();
+        toggleChecklistItem(index);
     });
 
-    // 文件选择后 → 保存照片
+    // 文件选择后 → 保存照片并自动勾选
     cameraInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
-        if (file && currentCameraTargetIndex !== null) {
+        if (file && currentCameraTargetIndex !== null && currentCameraTargetType !== null) {
+            const idx = currentCameraTargetIndex;
+            const type = currentCameraTargetType;
             const reader = new FileReader();
             reader.onload = (ev) => {
                 const base64Photo = ev.target.result;
-                checklistData[currentChecklistType][currentCameraTargetIndex].photo = base64Photo;
-                saveChecklistData();
-                renderChecklist();
+                compressPhoto(base64Photo, 400, 0.6, (compressed) => {
+                    checklistData[type][idx].photo = compressed;
+                    checklistData[type][idx].done = true; // 自动勾选
+                    saveChecklistData();
+                    renderChecklist();
+                });
             };
             reader.readAsDataURL(file);
         }
-        // 清空input，允许重复选择同一张照片
         cameraInput.value = '';
         currentCameraTargetIndex = null;
+        currentCameraTargetType = null;
     });
 }
 
@@ -775,7 +830,7 @@ function renderEmployeeSubmissions(submissions, type) {
                     <li style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid #2a2a2a;font-size:14px;color:${item.done ? '#22c55e' : '#ef4444'};">
                         <span>${item.done ? '✅' : '⬜'}</span>
                         <span style="${item.done ? '' : 'opacity:0.5'}">${item.text}</span>
-                        ${item.photo ? `<img src="${item.photo}" data-photo="${item.photo}" class="progress-photo" style="width:60px;height:60px;object-fit:cover;border-radius:6px;margin-left:8px;cursor:pointer;">` : ''}
+                        ${item.photo ? `<img src="${API_BASE}/photo/${item.photo}" data-photo="${API_BASE}/photo/${item.photo}" class="progress-photo" style="width:60px;height:60px;object-fit:cover;border-radius:6px;margin-left:8px;cursor:pointer;">` : ''}
                     </li>
                 `).join('')}
             </ul>

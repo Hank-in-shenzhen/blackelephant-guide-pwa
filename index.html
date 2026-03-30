@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>黑象工作指引</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css?v=20260330">
+    <link rel="manifest" href="manifest.json?v=20260330">
 </head>
 <body>
     <div class="container">
@@ -79,7 +79,10 @@
                     </div>
                     <div class="checklist-date" id="checklist-date"></div>
                     <ul class="checklist-items" id="checklist-items"></ul>
-                    <button class="reset-btn" id="reset-btn">🔄 重置清单</button>
+                    <div class="checklist-footer">
+                        <button class="submit-checklist-btn" id="submit-checklist-btn" style="display:none;">✅ 确认开工完成</button>
+                        <button class="reset-btn" id="reset-btn">🔄 重置清单</button>
+                    </div>
                 </div>
             </div>
             <!-- 拍照用的隐藏文件输入框 -->
@@ -225,34 +228,68 @@
     <div class="global-search-fixed">
         <div class="search-section">
             <input type="text" id="searchInput" placeholder="输入关键词寻找内容，如：到店、打烊、莫吉托" autocomplete="off">
+            <button id="searchBtn">搜索</button>
         </div>
     </div>
 
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=20260330"></script>
     <script>
         // Service Worker 注册
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/service-worker.js')
                     .then(registration => {
-                        console.log('ServiceWorker 注册成功:', registration);
+                        console.log('ServiceWorker 注册成功, 版本:', registration.scope);
 
                         // 监听更新
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    if (confirm('发现新版本，是否刷新页面更新？')) {
+                                    // 发现新版本，自动提示并刷新
+                                    if (confirm('发现新版本！点击确定立即更新。')) {
                                         window.location.reload();
                                     }
                                 }
                             });
                         });
+
+                        // 检查是否需要强制刷新（URL带版本参数）
+                        const urlParams = new URLSearchParams(window.location.search);
+                        if (urlParams.has('v')) {
+                            navigator.serviceWorker.ready.then(() => {
+                                if (!registration.active) return;
+                                const currentUrl = registration.active.scriptURL;
+                                if (!currentUrl.includes('v=')) {
+                                    // ServiceWorker缓存的是旧URL，强制更新
+                                    registration.update();
+                                }
+                            });
+                        }
                     })
                     .catch(registrationError => {
                         console.log('ServiceWorker 注册失败:', registrationError);
                     });
+
+                // 控制旧标签页提示刷新
+                let updatePrompted = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (updatePrompted) return;
+                    updatePrompted = true;
+                    if (confirm('页面已更新，请刷新以获取最新版本。')) {
+                        window.location.reload();
+                    }
+                });
             });
+
+            // 调试用：手动清除缓存
+            window.clearSWCache = async () => {
+                if ('caches' in window) {
+                    const names = await caches.keys();
+                    await Promise.all(names.filter(n => n.startsWith('work-guide-')).map(n => caches.delete(n)));
+                    alert('缓存已清除，请刷新页面');
+                }
+            };
         }
     </script>
 </body>
