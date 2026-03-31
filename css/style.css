@@ -384,6 +384,21 @@ header h1 {
         width: auto;
         flex-shrink: 0;
     }
+
+    .global-search-fixed .search-section {
+        flex-direction: row;
+        flex-wrap: nowrap;
+    }
+
+    .global-search-fixed #searchInput {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .global-search-fixed #searchBtn {
+        flex-shrink: 0;
+        width: auto;
+    }
 }
 
 /* ==================== 导航标签样式 ==================== */
